@@ -43,6 +43,6 @@ typedef struct symbol {
     char symbolID;
     int freq;
     char *code;
-} symbol;
+} Symbol;
 
 #endif /* DATA_H */

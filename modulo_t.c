@@ -4,7 +4,7 @@
 void generatecode (char *freqs_filename) {
     // Read frequencies files
     // FILE *freqs_file = fopen(freqs_filename, "r");
-    
+
     // Create Shannon Fano code file
     // char *output_name = ;
     // FILE *code_file = fopen(output_name, "w");
@@ -21,7 +21,7 @@ void generatecode (char *freqs_filename) {
     //     sortbyfreqs(symbol_table);
 
     //     createshafacode(symbol_table);
-    //     
+    //
     //     writeblock(code_file, symbol_table);
     //     free(symbol_table);
     // }
