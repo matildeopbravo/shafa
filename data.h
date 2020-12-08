@@ -36,4 +36,13 @@ typedef struct freq_block {
     struct freq_block *prox;
 } *Freq_blocks ;
 
+/* SHANNON FANO CODING */
+
+/* Struct for symbol data */
+typedef struct symbol {
+    char symbolID;
+    int freq;
+    char *code;
+} symbol;
+
 #endif /* DATA_H */
