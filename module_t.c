@@ -1,5 +1,5 @@
 #include "data.h"
-#include "modulo_t.h"
+#include "module_t.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -17,12 +17,12 @@ void generatecode (char *freqs_filename) {
     /* Main loop for each block */
     int i;
     for (i = 0; i < n_blocks; i++) {
-        symbol *symbol_table = (symbol*) malloc(256*sizeof(symbol));
+        Symbol *symbol_table = (Symbol*) malloc(256*sizeof(Symbol));
 
         initialize_table (symbol_table, 256);
 
 <<<<<<< HEAD
-        qsort(symbol_table, 256, sizeof(symbol), compare_freqs);
+        qsort(symbol_table, 256, sizeof(Symbol), compare_freqs);
 
         create_shafa_code(symbol_table, 0, 256);
         
@@ -43,7 +43,7 @@ void generatecode (char *freqs_filename) {
     // Print run stats
 }
 
-void initialize_table (symbol *symbol_table, int n) {
+void initialize_table (Symbol *symbol_table, int n) {
     int i;
     for (i = 0; i < n; i++) {
         symbol_table[i].symbolID = i;
@@ -52,10 +52,10 @@ void initialize_table (symbol *symbol_table, int n) {
 }
 
 int compare_freqs (void *a, void *b) {
-    return (((symbol *) b)->freq - ((symbol *) a)->freq);
+    return (((Symbol *) b)->freq - ((Symbol *) a)->freq);
 }
 
-void create_shafa_code (symbol *symbol_table, int start, int end) { 
+void create_shafa_code (Symbol *symbol_table, int start, int end) { 
     int p = freq_split(symbol_table, start, end);
     append_bits(symbol_table, p, start, end);
 
@@ -63,7 +63,7 @@ void create_shafa_code (symbol *symbol_table, int start, int end) {
     create_shafa_code(symbol_table, p, end);
 }
 
-int freq_split(symbol *symbol_table, int start, int end) {
+int freq_split(Symbol *symbol_table, int start, int end) {
     int p, i;
     int freq_1 = 0;
     int freq_2 = 0;
@@ -96,7 +96,7 @@ int freq_split(symbol *symbol_table, int start, int end) {
     return (p-1);
 }
 
-void append_bits (symbol *symbol_table, int p, int start, int end) {
+void append_bits (Symbol *symbol_table, int p, int start, int end) {
     int i;
     for (i = start; i < end; i++) {
         if (i < p)
