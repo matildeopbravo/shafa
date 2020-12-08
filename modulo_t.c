@@ -6,7 +6,7 @@
 void generatecode (char *freqs_filename) {
     // Read frequencies files
     // FILE *freqs_file = fopen(freqs_filename, "r");
-    
+
     // Create Shannon Fano code file
     // char *output_name = ;
     // FILE *code_file = fopen(output_name, "w");
@@ -21,6 +21,7 @@ void generatecode (char *freqs_filename) {
 
         initialize_table (symbol_table, 256);
 
+<<<<<<< HEAD
         qsort(symbol_table, 256, sizeof(symbol), compare_freqs);
 
         create_shafa_code(symbol_table, 0, 256);
@@ -29,6 +30,14 @@ void generatecode (char *freqs_filename) {
         free(symbol_table);
     }
    
+=======
+    //     createshafacode(symbol_table);
+    //
+    //     writeblock(code_file, symbol_table);
+    //     free(symbol_table);
+    // }
+    //
+>>>>>>> 9f65a5d8edbffdb025d18365ea328f044d460291
     // Append the null block at the end of the loop
     //
     // Print run stats
