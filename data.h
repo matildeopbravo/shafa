@@ -1,40 +1,40 @@
 #ifndef DATA_H
-#define DATA_H 
+#define DATA_H
 
 #include <stdint.h>  /* for uint8_t */
 #define BUFFER_SIZE 1024
+#define uint_range 256
 
-enum compression{N , R}type;
+enum compression {NOT_COMPRESSED, COMPRESSED};
 
 /* FILE */
-	
+
 /* Block Values */
-typedef struct NODE {
-    void *value;
-    struct NODE *prox; 
-} *BLOCK_LIST ;
+typedef struct node {
+    uint8_t value;
+    struct node *prox;
+} *BlockList;
 
 /* struct for blocks */
-typedef struct Block {
-    BLOCK_LIST *blocklist;
-    int block_size;
-    struct Block *prox;
-} *BLOCKS;
+typedef struct block {
+    BlockList blocklist;
+    struct block *prox;
+    unsigned int block_size;
+} *Blocks;
 
 /* struct to put on file on blocks */
-typedef struct {
-    enum compression type; /* R == compression with RLE (1 -> true) ||  N == no compression (0 -> False) */
-    int num_blocks;
-    BLOCKS *Blocks;
-} *Block_file;
+typedef struct block_file{
+   enum compression compression_type ;
+   Blocks blocks;
+   unsigned int num_blocks;
+} *BlockFiles;
 
 /* FREQUENCY */
-
 /* Struct for the blocks' frequency */
 typedef struct freq_block {
-    int freq[256];
-    struct freq_block *prox;
-} *Freq_blocks ;
+   int freq[uint_range];
+   struct FreqBlock *prox;
+} *FreqBlock ;
 
 /* SHANNON FANO CODING */
 
