@@ -35,3 +35,5 @@ $ shafa exemplo.txt.rle -m c
 ```sh
 $ shafa exemplo.txt.rle.shaf -m d
 ```
+
+![Shafa's Architecture](arq-shafa.png)
