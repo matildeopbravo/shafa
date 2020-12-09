@@ -21,7 +21,6 @@ void generatecode (char *freqs_filename) {
 
         initialize_table (symbol_table, 256);
 
-<<<<<<< HEAD
         qsort(symbol_table, 256, sizeof(Symbol), compare_freqs);
 
         create_shafa_code(symbol_table, 0, 256);
@@ -30,14 +29,6 @@ void generatecode (char *freqs_filename) {
         free(symbol_table);
     }
    
-=======
-    //     createshafacode(symbol_table);
-    //
-    //     writeblock(code_file, symbol_table);
-    //     free(symbol_table);
-    // }
-    //
->>>>>>> 9f65a5d8edbffdb025d18365ea328f044d460291
     // Append the null block at the end of the loop
     //
     // Print run stats
@@ -64,33 +55,19 @@ void create_shafa_code (Symbol *symbol_table, int start, int end) {
 }
 
 int freq_split(Symbol *symbol_table, int start, int end) {
-    int p, i;
-    int freq_1 = 0;
-    int freq_2 = 0;
+    int p, i, f = 1;
+    int freqs[2] = {0, 0};
     int dif_freq, min_dif_freq = -1; 
      
-    for (p = start + 1; p < end; p++) {
-        for (i = start; i < end; i++) {
-            if (i < p) {
-                freq_1 += symbol_table[i].freq;
-            }
-            else {
-                freq_2 += symbol_table[i].freq;
-            }
-        }
+    for (p = start + 1; f && p < end; p++) {
+        for (i = start; i < end; i++) 
+            freqs[i >= p] += symbol_table[i].freq;
         
-        dif_freq = abs(freq_1 - freq_2);
+        dif_freq = abs(freqs[0] - freqs[1]);
         
-        if (min_dif_freq == -1)
+        if (min_dif_freq == -1 || dif_freq < min_dif_freq)
             min_dif_freq = dif_freq;
-
-        else {
-            if (dif_freq < min_dif_freq)
-                min_dif_freq = dif_freq;
-            else {
-                break;
-            }
-        }
+        else f = 0;
     }
 
     return (p-1);
