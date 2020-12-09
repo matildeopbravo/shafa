@@ -1,18 +1,13 @@
 /**
  @file modulo_f.c
+ Responsible for compressing RLE and calculating frequencies.
  Responsavel pela compressao RLE e pelo calculo das frequencias.
 */
-//include "ModuloF.h"
+
 #include "modulo_f.h"
 #include "fsize.h"
 
-/* Codigo ASCII */
-#define uintArroba 64
-#define uint_PontoVirgula 59
-
-#define WriteFreq_ERROR_IN_FILE -1 /* ERROR: Opening file */
-#define WriteFreq_ERROR_IN_FREQ -2 /* ERROR: Reading the frequency */
-
+/* FILE */
 /* Open a file */
 FILE *openFile( const char *file, const char *mode){
     FILE *new_file = NULL;
@@ -30,16 +25,15 @@ void closeFile(FILE **file){
 }
 
 /* FREQUENCY */
-/* allocar memoria para as frequencias */
+/* Allocate memory for frequencies */
 void initializeFreq( FreqBlock *e ){
     e = (FreqBlock *)calloc(1,sizeof(FreqBlock));
     (*e)->prox = NULL;
 }
 
-/* FILE */
-
-/* INICIALIZAR */
-/* Alocar memoria pra os blocos */
+/* BLOCKS */
+/* Allocate memory for blocks */
+void initializeFreq( FreqBlock *e ){
 void initializeBlockFiles( BlockFiles *e ){
     e = (BlockFiles *)calloc(1,sizeof(BlockFiles));
     (*e)->blocks = NULL;
@@ -59,8 +53,7 @@ void initializeBlockList( BlockList *e ){
     (*e)->prox = NULL;
 }
 
-/* Adicionar "algo" */
-/* Add um elemento a uma lista de blocos */
+/* Add an element to a block list */
 void add( BlockList *e, uint8_t value){
     BlockList *new, *aux;
     aux = e;
@@ -82,7 +75,7 @@ int writeFreq( FILE *fp_in , unsigned char *filename, BlockFiles *BlockFile , Fr
     FreqBlock *aux_Freq; aux_Freq = freq;
     unsigned int block_size;
 
-    /* Check that the frequency data is not empty */
+    /* Check if the frequency data is not empty */
     if( freq==NULL ) return WriteFreq_ERROR_IN_FILE;
 
     /* Open the file in binary write mode */
@@ -99,16 +92,17 @@ int writeFreq( FILE *fp_in , unsigned char *filename, BlockFiles *BlockFile , Fr
     /* dados inicias */
     /* @<R|N>@NumerodeBlocos */
     /* fprintf( fp , "%c%c%c%d",uintArroba,compression_type,uintArroba,n_blocks); */
+    /* ...  */
     /* ou entao */
 
     /* @<R|N>@NumerodeBlocos */
     fprintf( fp , "@%c%@%d",compression_type,n_blocks);
-    /* Escrever as frequencias de um bloco */
+    /* write the frequency of a block */
     while( /* aux_Blocks && */ aux_Freq  && i<=n_blocks ){
         /* block_size = (*aux_Blocks)->block_size; */
         fprintf( fp , "@" );
         j = 0;
-        /* Escrever as frequencias ate ao simbolo 254 */
+        /* Write the frequencies up to the symbol 254 */
         while( j<255 ){
             fprintf( fp, "%d;", (*aux_Freq)->freq[j] );
             fprintf( fp, "%d;", (*aux_Freq)->freq[j+1] );
@@ -117,7 +111,7 @@ int writeFreq( FILE *fp_in , unsigned char *filename, BlockFiles *BlockFile , Fr
             fprintf( fp, "%d;", (*aux_Freq)->freq[j+4] );
             j = j + 5;
         }
-        /* frequencia do simbolo 255 */
+        /* frequency of symbol 255 */
         fprintf( fp, "%d", (*aux_Freq)->freq[j] );
 
         i = i + 1;
@@ -126,19 +120,24 @@ int writeFreq( FILE *fp_in , unsigned char *filename, BlockFiles *BlockFile , Fr
     }
     if ( aux_Freq == NULL && i != n_blocks) return WriteFreq_ERROR_IN_FREQ;
     fprintf( fp , "@");
+
+    /* free allocated space from auxiliary variables */
+    /* ????????????????????????????????????????????? */
+
     return 1;
 }
 
 
-/*  */
-
-int ModuloF( unsigned char *filename, unsigned long *the_block_size,  enum compression compression){
+int modulo_f( unsigned char *filename, unsigned long *the_block_size,  enum compression compression){
 
     /* ler o ficheiro */
-    /* sugestao: ao colocar o file por blocos fazer ja a contagem */
+    /* sugestao: ao colocar o file por blocos fazer ja a contagem dos simbolos por bloco */
 
     /* fazer compressao ou nao */
-    /* se hover compressao fazer contagem dos simbolos */
+    /* se hover compressao fazer contagem dos simbolos ao mesmo tempo q se faz a compressao */
 
-    /* Frequencias */
+    /* escrever as frequencias */
+
+    /* apresentar menu final */
+    return 1;
 }

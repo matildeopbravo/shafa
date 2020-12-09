@@ -2,8 +2,17 @@
 #define MODULO_F_H
 
 #include <stdint.h>  /* for uint8_t */
+
 #define BUFFER_SIZE 1024
 #define uint_range 256
+
+/* Codigo ASCII */
+#define uintArroba 64
+#define uint_PontoVirgula 59
+
+/* Errors related to function WriteFreq */
+#define WriteFreq_ERROR_IN_FILE -1 /* ERROR: Opening file */
+#define WriteFreq_ERROR_IN_FREQ -2 /* ERROR: Reading the frequency */
 
 enum compression {NOT_COMPRESSED, COMPRESSED};
 
