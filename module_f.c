@@ -1,10 +1,10 @@
 /**
- @file modulo_f.c
+ @file module_f.c
  Responsible for compressing RLE and calculating frequencies.
  Responsavel pela compressao RLE e pelo calculo das frequencias.
 */
 
-#include "modulo_f.h"
+#include "module_f.h"
 #include "fsize.h"
 
 /* FILE */
@@ -33,7 +33,6 @@ void initializeFreq( FreqBlock *e ){
 
 /* BLOCKS */
 /* Allocate memory for blocks */
-void initializeFreq( FreqBlock *e ){
 void initializeBlockFiles( BlockFiles *e ){
     e = (BlockFiles *)calloc(1,sizeof(BlockFiles));
     (*e)->blocks = NULL;
@@ -127,6 +126,23 @@ int writeFreq( FILE *fp_in , unsigned char *filename, BlockFiles *BlockFile , Fr
     return 1;
 }
 
+void print_modulo_f( FILE *file, unsigned char *filename, unsigned long *n_blocks, enum compression compression, unsigned int time ){
+    unsigned percentage_compression; /*  */
+
+    fprintf(stdout, "Mariana Rodrigues, a93329 && Mick, a \n");
+    fprintf(stdout, "MIEI/CD -Dezembro-2020 \n");
+    fprintf(stdout, "Módulo: f (Cálculo das frequências dos símbolos) \n");
+    fprintf(stdout, "Número de blocos: %d\n", n_blocks);
+    fprintf(stdout, "Tamanho dos blocos analisados: \n"); /* ?!!? */
+
+    if(compression == COMPRESSED){
+       fprintf(stdout, "Compressao RLE: %c.rle (%d% compressão)", *filename, percentage_compression);
+       fprintf(stdout, "Tamanho dos blocos analisados no ficheiro RLE: \n"); /* ?!!? */
+    }
+    fprintf(stdout, "Tempo de execução do módulo (milissegundos): %d", time);
+    fprintf(stdout, "Ficheiros gerados: %c.freq", *filename);
+    if(compression == COMPRESSED) fprintf(stdout, ", %c.rle.freq\n", *filename);
+}
 
 int modulo_f( unsigned char *filename, unsigned long *the_block_size,  enum compression compression){
 

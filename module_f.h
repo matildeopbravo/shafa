@@ -1,5 +1,5 @@
-#ifndef MODULO_F_H
-#define MODULO_F_H
+#ifndef MODULE_F_H
+#define MODULE_F_H
 
 #include <stdint.h>  /* for uint8_t */
 
@@ -45,4 +45,4 @@ typedef struct freq_block {
    struct freq_block *prox;
 } *FreqBlock ;
 
-#endif /* MODULO_F_H */
+#endif /* MODULE_F_H */
