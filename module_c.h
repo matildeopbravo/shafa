@@ -1,18 +1,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-
 #define uint8_max 255
+#define MAX_BLOCK_SIZE 67108864
+#define MAX_NUMBER_BLOCKS 4294967296
+
+// not sure about data types yet (eg: long long) and the value of maxblock etc
+
+enum parameters { START, BLOCK_SIZE, SEQUENCE};
+enum rle_compression {NOT_RLE_COMPRESSED= 'N', RLE_COMPRESSED = 'R'};
+
+typedef struct {
+   unsigned char c;
+   unsigned char sf_code []; // codigo shannon-fano atribuido ao carater nesse bloco
+
+}SFTuple;
 
 typedef struct block {
-    uint8_t  block_size;
-    int sequence [uint8_max];
-} Block;
+    long long block_size;
+    uint8_t sequence [MAX_BLOCK_SIZE];
+    SFTuple symbol_dictionary [];
 
-typedef struct full_sequence {
-   unsigned int number_blocks;
-   unsigned int size_first_block;
-   unsigned int size_last_block;
-   Block block [] ;
-}*FullSequence;
+}Block;
+
+typedef struct {
+   unsigned long number_blocks;
+   unsigned long size_first_block; // not sure se vai ser necessário, depois vemos
+   unsigned long size_last_block;
+   enum rle_compression compression_type;
+   Block block [MAX_NUMBER_BLOCKS] ;
+}FullSequence;
 
