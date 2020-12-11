@@ -1,6 +1,7 @@
 #ifndef MODULET_H
 #define MODULET_H
 #include "data.h"
+#include "stdio.h"
 
 // Main function for this module. Generates a file containing
 // the appropriate Shannon Fano coding for the provided file name.
@@ -11,6 +12,10 @@ void initialize_table (Symbol *symbol_table, int n);
 
 // Calculates difference between the frequencies of two pointed symbols
 int compare_freqs (void *a, void *b);
+
+// Calculates difference between the numeric values of the ASCII value of
+// two symbols.
+int compare_symbolID (void *a, void*b);
 
 // Writes Shannon Fano code to the symbols in the pointed symbols table
 // from the index in start to the index in end, not including the last
@@ -28,7 +33,8 @@ int freq_split (Symbol *symbol_table, int start, int end);
 // and a '1' to all symbol codes from p to end, not including end. 
 void append_bits (Symbol *symbol_table, int p, int start, int end);
 
-// Appends a character to a string
-void append_char(char c, char* string);
+// Writes one Shannon Fano code block from the code in the symbol_table to the
+// file pointed in code_file
+void write_block (FILE * code_file, int block_size, Symbol *symbol_table);
 
 #endif /* MODULOT_H */
