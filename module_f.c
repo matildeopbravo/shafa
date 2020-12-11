@@ -211,15 +211,22 @@ int main() {
   for (int i = 0; i < uint_range; i++) {
     (*e).freq[i] = i * 1;
   }
+  FreqBlock *aux = initializeFreq();
+  for (int i = 0; i < uint_range; i++) {
+    (*aux).freq[i] = i * 100;
+  }
+  (*e).prox = &aux;
 
   printf("Tava a dar🤔 \n");
   printf("ate aqui nice -> %d\n", (*e).freq[4]);
 
   BlockFiles *BlockFile = initializeBlockFiles();
-  (*BlockFile).num_blocks = 1;
+  (*BlockFile).num_blocks = 2;
   FILE *fp = fopen("try.txt", "w");
 
   writeFreq(fp, name1, BlockFile, e);
+  /* o ficheiro foi fechado dentro da funcao writeFreq
+   * n deveria ser */
   printf("Write Freq done\n");
 
   printf("\n");
@@ -233,12 +240,6 @@ int main() {
   print_modulo_f(filename, n_blocks, argh, time);
   /* --------------------------------------------------- */
   printf("\n");
-
-  /* writeFreq */
-  char compression_type = 'R';
-  long long n_blocks2 = 20;
-  fprintf(stdout, "%c%c%c%lld\n", uint_Arroba, compression_type, uint_Arroba,
-          n_blocks2);
 
   return sucess;
 }
