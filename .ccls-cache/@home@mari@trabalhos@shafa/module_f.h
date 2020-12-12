@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define BUFFER_SIZE 1024
-#define uint_range 256
+#define uint_range 255
 
 /* Codigo ASCII */
 #define uint_Arroba 64
