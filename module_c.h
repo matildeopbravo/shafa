@@ -4,6 +4,8 @@
 #define uint8_max 255
 #define MAX_BLOCK_SIZE 67108864
 #define MAX_NUMBER_BLOCKS 4294967296
+#define BUFF_SIZE 100
+#define DIC_SIZE 127
 
 // not sure about data types yet (eg: long long) and the value of maxblock etc
 
@@ -20,8 +22,8 @@ typedef struct {
 typedef struct block {
   long long block_size;
   uint8_t sequence[MAX_BLOCK_SIZE];
-  SFTuple symbol_dictionary[];
-
+  /* SFTuple symbol_dictionary[]; */ // isto tem um erro, não corrigi porque não
+                                     // sei se vai ser usado
 } Block;
 
 typedef struct {
