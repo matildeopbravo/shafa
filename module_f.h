@@ -1,15 +1,13 @@
-#ifndef MODULE_F_H
-#define MODULE_F_H
+#ifndef __MODULE_F_H_
+#define __MODULE_F_H_
 
-#include <stdint.h> /* for uint8_t */
-#include <string.h>
-
-#define BUFFER_SIZE 1024
-#define uint_range 255
+#include "dynamic_arrays.h"
 
 /* Codigo ASCII */
 #define uint_Arroba 64
 #define uint_PontoVirgula 59
+#define uint_percentagem 37
+#define uint_range 255
 
 #define sucess 1
 /* Errors related to function WriteFreq */
@@ -21,15 +19,9 @@ enum compression { NOT_COMPRESSED, COMPRESSED } check;
 
 /* FILE */
 
-/* Block Values */
-typedef struct node {
-  uint8_t value;
-  struct node *prox;
-} BlockList;
-
 /* struct for blocks */
 typedef struct block {
-  BlockList *blocklist;
+  ByteVec *blocklist;
   struct block *prox;
   unsigned int block_size;
 } Blocks;
@@ -48,4 +40,4 @@ typedef struct freq_block {
   struct freq_block *prox;
 } FreqBlock;
 
-#endif /* MODULE_F_H */
+#endif // __MODULE_F_H_

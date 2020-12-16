@@ -30,73 +30,56 @@ void closeFile(FILE **file) {
 /* Allocate memory for frequencies */
 FreqBlock *initializeFreq(int array[uint_range]) {
   FreqBlock *e = (FreqBlock *)calloc(1, sizeof(FreqBlock));
-  (*e).prox = NULL;
+  e->prox = NULL;
   int i;
   i = 0;
-  for (; i < uint_range; i++)
-    (*e).freq[i] = array[i];
+  for (; i < uint_range; i = i + 1)
+    e->freq[i] = array[i];
   return e;
 }
 
 /* BLOCKS */
-/* Allocate memory for blocks */
-BlockList *initializeBlockList(uint8_t value) {
-  BlockList *e = (BlockList *)calloc(1, sizeof(BlockList));
-  (*e).value = value;
-  (*e).prox = NULL;
-  return e;
-}
-
 Blocks *initializeBlocks() {
   Blocks *e = (Blocks *)calloc(1, sizeof(Blocks));
-  (*e).prox = NULL;
-  (*e).block_size = 0;
-  (*e).blocklist = NULL;
+  e->prox = NULL;
+  e->block_size = 0;
+  e->blocklist = NULL;
   return e;
 }
 
 BlockFiles *initializeBlockFiles() {
   BlockFiles *e = (BlockFiles *)calloc(1, sizeof(BlockFiles));
-  (*e).blocks = NULL;
-  (*e).compression_type = NOT_COMPRESSED;
-  (*e).num_blocks = 0;
+  e->blocks = NULL;
+  e->compression_type = NOT_COMPRESSED;
+  e->num_blocks = 0;
   return e;
-}
-/* Add an element to a block list */
-void add(BlockList *e, uint8_t value) {
-  BlockList *aux;
-  aux = e;
-  for (; (*aux).prox != NULL; aux = ((*e).prox))
-    ;
-  (*aux).prox = initializeBlockList(value);
 }
 
 /* Adiciona um bloco (Blocks) no nosso BlockFiles */
 void addedBlockTOBloc_file(BlockFiles *e, Blocks *block) {
-  Blocks *aux = (*e).blocks;
+  Blocks *aux = e->blocks;
   if (aux) {
-
-    while ((*aux).prox)
-      aux = (*aux).prox;
-    (*aux).prox = block;
-  } else
-    (*e).blocks = block;
-  (*e).num_blocks = (*e).num_blocks + 1;
+    while (aux->prox)
+      aux = aux->prox;
+    aux->prox = block;
+  } else {
+    e->blocks = block;
+  }
+  e->num_blocks = e->num_blocks + 1;
 }
 
 /* Array of ints to a FreqBlock */
-/*/funciona, execpto se o e inicial for null*/
 void arrayToFreqBlock(int array[uint_range], FreqBlock *e) {
   FreqBlock *aux, *new;
   aux = e;
   new = initializeFreq(array);
 
-  (*new).prox = NULL;
+  new->prox = NULL;
   if (aux) {
-    while ((*aux).prox) {
-      aux = ((*aux).prox);
+    while (aux->prox) {
+      aux = (aux->prox);
     }
-    (*aux).prox = new;
+    aux->prox = new;
   } else
     e = new;
 }
@@ -105,34 +88,34 @@ void arrayToFreqBlock(int array[uint_range], FreqBlock *e) {
 int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
               FreqBlock *freq) {
 
-  FILE *fp;
   long long n_blocks;
 
+  /* Check if the BlockFile is not empty */
   if (BlockFile != NULL)
-    n_blocks = (*BlockFile).num_blocks;
+    n_blocks = BlockFile->num_blocks;
   else
     return WriteFreq_ERROR_IN_BLOCKFILES;
-  int i, j;
-
-  /* Compression_type */
-  char compression_type;
-  if ((*BlockFile).compression_type == NOT_COMPRESSED)
-    compression_type = 'N';
-  else
-    compression_type = 'R';
-
-  Blocks *aux_Blocks;
-  aux_Blocks = (*BlockFile).blocks;
-  FreqBlock *aux_Freq;
-  aux_Freq = freq;
-  unsigned int block_size;
 
   /* Check if the frequency data is not empty */
   if (freq == NULL)
     return WriteFreq_ERROR_IN_FILE;
 
-  /* Open the file in binary write mode */
-  /* if ( filename==NULL || *filename == 0 ) fp = fp_in; */
+  int i, j;
+
+  /* Compression_type */
+  char compression_type;
+  if (BlockFile->compression_type == NOT_COMPRESSED)
+    compression_type = 'N';
+  else
+    compression_type = 'R';
+
+  Blocks *aux_Blocks;
+  aux_Blocks = BlockFile->blocks;
+  FreqBlock *aux_Freq;
+  aux_Freq = freq;
+  unsigned int block_size;
+
+  FILE *fp;
   if (fp_in != NULL)
     fp = fp_in;
   else {
@@ -149,20 +132,20 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   /* write the frequency of a block */
   i = 0;
   while (aux_Blocks && aux_Freq && i < n_blocks) {
-    block_size = (*aux_Blocks).block_size;
+    block_size = aux_Blocks->block_size;
     /* @[tamanho_do_bloco]@ */
     fprintf(fp, "%c%d%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 254 */
     while (j < (uint_range - 1)) { /* tentar melhorar a eficacia...*/
-      fprintf(fp, "%d;", (*aux_Freq).freq[j]);
+      fprintf(fp, "%d;", aux_Freq->freq[j]);
       j = j + 1;
     }
     /* frequency of symbol 255 */
-    fprintf(fp, "%d", (*aux_Freq).freq[j]);
+    fprintf(fp, "%d", aux_Freq->freq[j]);
     i = i + 1;
-    aux_Freq = (*aux_Freq).prox;
-    aux_Blocks = (*aux_Blocks).prox;
+    aux_Freq = aux_Freq->prox;
+    aux_Blocks = aux_Blocks->prox;
   }
   fprintf(fp, "%c0", uint_Arroba);
   if (aux_Freq == NULL && i != n_blocks)
@@ -174,10 +157,8 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   /* ????????????????????????????????????????????? */
   /* free(aux_Blocks); */
   /* free(aux_Freq); */
-  printf("Tava a dar🤔 \n");
 
   fclose(fp);
-  printf("humm.estranho\n");
   return sucess;
 }
 
@@ -188,14 +169,14 @@ void print_modulo_f(const char *filename, unsigned int n_blocks,
   /* FALTAM COISAAAASSS !!! */
   /* so onde estao os pontos de interrogacao */
   fprintf(stdout, "\n");
-  fprintf(stdout, "Mariana Rodrigues, a93329 && Mick, a \n");
+  fprintf(stdout, "Mariana Rodrigues, a93329 && Mike, a \n");
   fprintf(stdout, "MIEI/CD -Dezembro-2020 \n");
   fprintf(stdout, "Módulo: f (Cálculo das frequências dos símbolos) \n");
   fprintf(stdout, "Número de blocos: %d\n", n_blocks);
   fprintf(stdout, "Tamanho dos blocos analisados: \n"); /* ?!!? */
   if (compression == COMPRESSED) {
-    fprintf(stdout, "Compressao RLE: %s.rle (%d (percentagem) compressão)\n",
-            filename, percentage_compression);
+    fprintf(stdout, "Compressao RLE: %s.rle (%d %c compressão)\n", filename,
+            percentage_compression, uint_percentagem);
     fprintf(stdout,
             "Tamanho dos blocos analisados no ficheiro RLE: \n"); /* ?!!? */
   }
@@ -233,15 +214,12 @@ int 👑() {
 int main() {
   👑();
   /* experiencias: */
-
   const char *name1 = "Aola.txt";
-
   /*--------------------------------------------------------*/
   /* testar writeFreq */
-  /* testado com 1 e 2 blocos */
+  /* testado com 1->10 blocos */
   /* a dar 👌🏻 */
   int a[uint_range];
-  /* inicia bloco 1 */
   for (int i = 0; i < uint_range; i++) {
     a[i] = 12;
   }
@@ -253,41 +231,83 @@ int main() {
   }
 
   FreqBlock *e = initializeFreq(a);
-  /* FreqBlock *e = NULL; */
-  /* arrayToFreqBlock(a1, e); */
+  arrayToFreqBlock(a1, e);
   arrayToFreqBlock(a2, e);
   arrayToFreqBlock(a1, e);
   arrayToFreqBlock(a2, e);
+  arrayToFreqBlock(a1, e);
+  arrayToFreqBlock(a, e);
+  arrayToFreqBlock(a2, e);
+  arrayToFreqBlock(a1, e);
+  arrayToFreqBlock(a, e);
 
   /* iniciar a estrutura do file em blocos */
   BlockFiles *BlockFile = initializeBlockFiles();
-  (*BlockFile).num_blocks = 1;
 
+  /*bloco*/
   Blocks *bloco1 = initializeBlocks();
   (*bloco1).block_size = 1234;
   addedBlockTOBloc_file(BlockFile, bloco1);
-
+  printf("ate ao 1 \n");
+  /*bloco*/
   Blocks *bloco2 = initializeBlocks();
   (*bloco2).block_size = 5678;
   addedBlockTOBloc_file(BlockFile, bloco2);
+  printf("ate ao 2 \n");
+  /*bloco*/
   Blocks *bloco3 = initializeBlocks();
   (*bloco3).block_size = 999;
   addedBlockTOBloc_file(BlockFile, bloco3);
+  printf("ate ao 3 \n");
+  /*bloco*/
   Blocks *bloco4 = initializeBlocks();
   (*bloco4).block_size = 333;
   addedBlockTOBloc_file(BlockFile, bloco4);
+  printf("ate ao 4 \n");
+  /*bloco*/
+  Blocks *bloco5 = initializeBlocks();
+  (*bloco5).block_size = 999;
+  addedBlockTOBloc_file(BlockFile, bloco5);
+  printf("ate ao 5 \n");
+  /*bloco*/
+  Blocks *bloco6 = initializeBlocks();
+  (*bloco6).block_size = 13;
+  addedBlockTOBloc_file(BlockFile, bloco6);
+  printf("ate ao 6 \n");
+  /*bloco*/
+  Blocks *bloco7 = initializeBlocks();
+  (*bloco7).block_size = 20;
+  addedBlockTOBloc_file(BlockFile, bloco7);
+  printf("ate ao 7 \n");
+  /*bloco*/
+  Blocks *bloco8 = initializeBlocks();
+  (*bloco8).block_size = 777;
+  addedBlockTOBloc_file(BlockFile, bloco8);
+  printf("ate ao 8 \n");
+
+  Blocks *bloco9 = initializeBlocks();
+  (*bloco9).block_size = 777;
+  addedBlockTOBloc_file(BlockFile, bloco9);
+  printf("ate ao 9 \n");
+  Blocks *bloco10 = initializeBlocks();
+  (*bloco10).block_size = 777;
+  addedBlockTOBloc_file(BlockFile, bloco10);
+  printf("ate ao 10 \n");
 
   FILE *fp = fopen("try.txt.freq", "w");
-  writeFreq(fp, name1, BlockFile, e);
+  int resul = writeFreq(fp, name1, BlockFile, e);
+  /* int resul = writeFreq(NULL, name1, BlockFile, e); */
   /* o ficheiro foi fechado dentro da funcao writeFreq
    * n deveria ser */
-  printf("Write Freq done\n");
+  printf("Write Freq done :%d \n", resul);
   printf("\n");
+  free(BlockFile);
+  free(e);
   /*--------------------------------------------------------*/
 
   /* ------------------------------------------------------ */
   /* testar print_modulo_f */
-  unsigned int n_blocks = 3;
+  unsigned int n_blocks = 5;
   unsigned int time = 123;
   enum compression argh = COMPRESSED;
   /* enum compression argh=NOT_COMPRESSED; */
