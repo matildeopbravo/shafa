@@ -50,7 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Cached Files Emacs
 .ccls-cache/
 
 # Example files
 Examples/
+
