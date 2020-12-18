@@ -20,21 +20,21 @@ int count_numbers(char *c, FILE *fp_cod) {
   return atoi(buffer);
 }
 
-size_t strToNum (const char * str, size_t size) {
-    size_t num =  0;
-    for(int i = size - 1 ; str[i] ; i--){
-       if (str[i] == '1') {
-          num += str[i] << (size-1 - i);
-       }
+size_t strToNum(const char *str, size_t size) {
+  size_t num = 0;
+  for (int i = size - 1; str[i]; i--) {
+    if (str[i] == '1') {
+      num += str[i] << (size - 1 - i);
     }
-    return num;
+  }
+  return num;
 }
 
-void read_cod (char *cod_file, FullSequence *full_seq) {
+void read_cod(char *cod_file, FullSequence *full_seq) {
 
   char sequence[uint8_max]; // should it be uint8 ??
   enum parameters param = START;
-  int ascii = 0, j = 0, x = 0, nblock = 0, size=0; // block we're in
+  int ascii = 0, j = 0, x = 0, nblock = 0, size = 0; // block we're in
   int not_finished = 1; // este valor será alterado para 0 quando encontrarmos
                         // @0 e o ciclo para
 
@@ -44,12 +44,11 @@ void read_cod (char *cod_file, FullSequence *full_seq) {
   for (int i = 0; not_finished; i++) {
 
     if (c == '@') {
-        ascii = 0;
+      ascii = 0;
       if (i == 0) {
         full_seq->compression_type = fgetc(fp_cod);
         c = fgetc(fp_cod);
-      }
-      else if (i == 1) {
+      } else if (i == 1) {
         c = fgetc(fp_cod);
         full_seq->number_blocks = count_numbers(&c, fp_cod);
         // O c já está igual ao primeiro digito
@@ -57,8 +56,7 @@ void read_cod (char *cod_file, FullSequence *full_seq) {
         // aponta e vai devolver o valor correspondente ao numero de blocos (já
         // em long)
         param = BLOCK_SIZE;
-      }
-      else {
+      } else {
         c = fgetc(fp_cod);
         not_finished = c;
         if (not_finished) {
@@ -69,21 +67,20 @@ void read_cod (char *cod_file, FullSequence *full_seq) {
             }
             full_seq->size_last_block = size;
             param = SEQUENCE;
-          }
-          else { // param == sequence
+          } else { // param == sequence
                    // vai incrementando o ascii para saber em que posicao vai e
                    // vai guardar os codigos sf que encontrar e o codigo ascii
                    // correspondente começamos a ler um codigo ascii
-            for (   ; c != '@'; ascii++) {
+            for (; c != '@'; ascii++) {
               if (c != ';') {
                 for (x = 0; c != ';'; x++) {
                   sequence[x] = c;
                   c = fgetc(fp_cod);
                 }
-                sequence[x]= '\0';
-                strcpy(full_seq->blocks[nblock].symbol_dictionary[ascii],sequence);
-              }
-              else
+                sequence[x] = '\0';
+                strcpy(full_seq->blocks[nblock].symbol_dictionary[ascii],
+                       sequence);
+              } else
                 full_seq->blocks[nblock].symbol_dictionary[ascii] = NULL;
             }
             nblock++;
@@ -94,26 +91,14 @@ void read_cod (char *cod_file, FullSequence *full_seq) {
   }
 }
 
-void show_dic(int *dic[DIC_SIZE]) {
-  for (int i = 0; i < DIC_SIZE; i++) {
-    if (dic[i] == NULL)
-      printf("%i: NULL", i);
-    else
-      for (int n = 0; dic[i][n] != '\0'; n++)
-        printf("%i: %c ", i, (char) dic[i][n]);
-    putc('\n', stdout);
-  }
-}
-
 int main() {
   // input file, in this example it's rle but could be just txt
-  char const * symbol_file = "input.txt.rle";
-  char *cod_file;
-  FullSequence sequence = {0}; // initialize struct
-  int *dic[DIC_SIZE];
+  char const *symbol_file = "input.txt.rle";
+  char *cod_file = malloc(strlen(symbol_file) + 5);      // (".cod" ++ '\0')
+  FullSequence *sequence = malloc(sizeof(FullSequence)); // initialize struct
   strcpy(cod_file, symbol_file);
   strcat(cod_file, ".cod"); // codfile = "input.txt.rle.cod"
-  read_cod(cod_file, &sequence);
+  read_cod(cod_file, sequence);
 
   return 0;
 }

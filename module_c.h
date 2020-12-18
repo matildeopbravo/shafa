@@ -1,9 +1,9 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #define uint8_max 255
-#define MAX_BLOCK_SIZE 67108864 // 64MB
+#define MAX_BLOCK_SIZE 67108864      // 64MB
 #define MAX_NUMBER_BLOCKS 4294967296 // 2^32
 #define DIC_SIZE 256
 
@@ -11,14 +11,15 @@
 enum parameters { START, BLOCK_SIZE, SEQUENCE };
 enum rle_compression { NOT_RLE_COMPRESSED = 'N', RLE_COMPRESSED = 'R' };
 
-//typedef struct {
+// typedef struct {
 //  bool is_garbage;
 //  char * sf_code; // codigo shannon-fano atribuido ao carater nesse bloco
 //} SFTuple;
 
 typedef struct block {
   size_t block_size;
-  char * symbol_dictionary[DIC_SIZE]; //O array tem comprimento 256 (ascii extended?)
+  char *symbol_dictionary[DIC_SIZE]; // O array tem comprimento 256 (ascii
+                                     // extended?)
 } Block;
 
 typedef struct {
