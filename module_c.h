@@ -1,10 +1,10 @@
-#include <stdbool.h>
+//#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define uint8_max 255
 #define MAX_BLOCK_SIZE 67108864      // 64MB
-#define MAX_NUMBER_BLOCKS 4294967296 // 2^32
+#define MAX_NUMBER_BLOCKS 5 // 2^32
 #define DIC_SIZE 256
 
 // not sure about data types yet (eg: long long) and the value of maxblock etc

@@ -9,3 +9,6 @@ t: module_t.c
 
 c: module_c.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+clean:
+	@rm -rf *.o c t f
