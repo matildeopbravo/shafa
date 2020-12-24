@@ -1,4 +1,4 @@
-G#include "module_c.h"
+#include "module_c.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -28,7 +28,6 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
     size_t i = 0;
 
     for (; byte < entire_bytes; byte++) {
-
         num = 0;
         for (int j = 7; j >= 0; i++, j--) {
             if (str[i] == '1') {
@@ -53,22 +52,33 @@ const Piece* get_piece(
     uint8_t offset,
     uint8_t symbol_index,
     uint8_t number_symbols) {
-    return (matrix + number_symbols * offset + symbol_index);
+    return matrix + number_symbols * offset + symbol_index;
 }
 
-void matrix_optimization(Block* block) {
-    // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
-    // + 8
-    size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
-    printf("Code will have %zu bytes\n", CODE_MAX_SIZE);
+void matrix_optimization(Block * block) {
+    // create_offsets
+}
+void start_matrix (Block *  block, uint8_t * symbols) {
     Piece* matrix = malloc(sizeof(Piece) * block->number_symbols * 8);
-    for (int i = 0; i < block->number_symbols; i++) {
-        //uint8_t* code = make_code(sf_code, size, CODE_MAX_SIZE);
-        // add_to_matrix function
-        // matrix_optimization per block
+    printf("%d",block->number_symbols);
+    block->matrix = matrix;
+    // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
+    size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
+
+    // creates offset 0
+    for (uint8_t i = 0 ; i < block->number_symbols ; i++ ) {
+        SFTuple tuple = block->symbol_dictionary[symbols[i]];
+        size_t size = strlen(tuple.sf_code);
+        block->matrix[tuple.index] =(Piece){
+            .code = make_code(tuple.sf_code, size, CODE_MAX_SIZE),
+            .next = size * (size_t) block->number_symbols,
+            .next_byte_index = size / 8
+        };
     }
+    printf("Code will have %zu bytes\n", CODE_MAX_SIZE);
 }
 
+void make_offsets (Piece * matrix){}
 void print_dictionary(FullSequence* full_seq) {
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
         printf("Bloco: %zu -> Size : %zu\n", i, full_seq->blocks[i].block_size);
@@ -87,10 +97,12 @@ void print_dictionary(FullSequence* full_seq) {
 }
 
 void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
-    int index = 0;
+    uint8_t index = 0;
+    uint8_t symbols [DICT_SIZE];
     int max_size = 0;
+    SFTuple tuple;
 
-    for (int ascii = 0; *c != '@';) {
+    for (uint8_t ascii = 0; *c != '@';) {
         if (*c != ';') {
             char* sequence = malloc(sizeof(char) * 10);
             int x = 0;
@@ -102,15 +114,18 @@ void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
             if (x > max_size) {
                 max_size = x;
             }
-            full_seq->blocks[nblock].symbol_dictionary[ascii] =
-                (SFTuple){.sf_code = sequence, .index = index++};
+            symbols[index] = ascii;
+            tuple = (SFTuple) {.sf_code = sequence, .index = index++};
+            full_seq->blocks[nblock].symbol_dictionary[ascii] =tuple;
         }
         else {
             *c = fgetc(fp_cod);
             ascii++;
         }
     }
+    full_seq->blocks[nblock].number_symbols = index;
     full_seq->blocks[nblock].biggest_code_size = max_size;
+    start_matrix(&full_seq->blocks[nblock], symbols);
 }
 
 int read_cod(char* cod_file, FullSequence* full_seq) {
@@ -161,6 +176,16 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
     }
     return error;
 }
+void destructor (FullSequence * sequence) {
+
+    for (size_t i = 0; i < sequence->number_blocks; i++) {
+            free(sequence->blocks[i].matrix);
+        for (int j = 0; j < DICT_SIZE; j++) {
+            free(sequence->blocks[i].symbol_dictionary[j].sf_code);
+        }
+    }
+    free(sequence);
+}
 
 int main() {
     // char const* symbol_file = "aaa.txt";
@@ -170,12 +195,7 @@ int main() {
     FullSequence* my_sequence = calloc(sizeof(FullSequence), 1);
     read_cod("aaa.txt.rle.cod", my_sequence);
     print_dictionary(my_sequence);
-
-    for (size_t i = 0; i < my_sequence->number_blocks; i++) {
-        for (int j = 0; j < DICT_SIZE; j++) {
-            free(my_sequence->blocks[i].symbol_dictionary[j].sf_code);
-        }
-    }
-    free(my_sequence);
+    destructor(my_sequence);
+    printf("%zu",sizeof(struct block));
     return 0;
 }

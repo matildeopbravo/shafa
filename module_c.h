@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,10 +14,18 @@ typedef struct {
     uint8_t index;  // index atribuido ao simbolo na em cada "peca" do offset
 } SFTuple;
 
+// Otimização Matriz
+typedef struct piece {
+    uint8_t* code;
+    size_t next;             // Next bit index * Nsimbolos
+    size_t next_byte_index;  // Index do byte até ao qual se faz shift
+} Piece;
+
 typedef struct block {
     size_t block_size;
     uint8_t number_symbols;
     size_t biggest_code_size;
+    Piece * matrix;
     SFTuple symbol_dictionary[DICT_SIZE];  // O array tem comprimento 256 (ascii
                                            // extended?)
 } Block;
@@ -31,9 +38,3 @@ typedef struct sequence {
     Block blocks[MAX_NUMBER_BLOCKS];
 } FullSequence;
 
-// Otimização Matriz
-typedef struct piece {
-    uint8_t* code;
-    size_t next;             // Next bit index * Nsimbolos
-    size_t index_next_byte;  // Index do byte até ao qual se faz shift
-} Piece;
