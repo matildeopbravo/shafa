@@ -11,17 +11,20 @@ void generatecode (char *freqs_filename) {
     // Create Shannon Fano code file
     // char *output_name = ;
     // FILE *code_file = fopen(output_name, "w");
-    // initialize_code_file(code_file);
+    // n_blocks = initialize_code_file(code_file);      //Initialize cod file
+                                                        //and get n_blocks    
 
-    // Obtain number of blocks in file
-    // int n_blocks = getblocks(freqs_file);
 
     /* Main loop for each block */
     int i;
     for (i = 0; i < n_blocks; i++) {
+        write_block_size (freqs_file, code_file);
+
         Symbol *symbol_table = (Symbol*) malloc(256*sizeof(Symbol));
 
         initialize_table (symbol_table, 256);
+        
+        read_block (freqs_file, symbol_table);
 
         qsort(symbol_table, 256, sizeof(Symbol), compare_freqs);
 
@@ -39,11 +42,29 @@ void generatecode (char *freqs_filename) {
     // Print run stats
 }
 
+void write_block_size (FILE *freqs_file, FILE *code_file) {
+    int block_size;
+    fscanf (freqs_file, "%d", &block_size);
+    fprintf (code_file, "%d", block_size);
+    fputc('@', code_file);
+}
+
 void initialize_table (Symbol *symbol_table, int n) {
     int i;
     for (i = 0; i < n; i++) {
         symbol_table[i].symbolID = i;
         symbol_table[i].code = (char *) malloc(256);
+    }
+}
+
+void read_block (FILE *freqs_file, Symbol *symbol_table) {
+    int i, freq, prev_freq;
+    for (i = 0; i < 256; i++) {
+        if (fscanf (freqs_file, "%d", &freq))
+            symbol_table[i].freq = freq;
+        else
+            symbol_table[i].freq = prev_freq;
+        prev_freq = freq;
     }
 }
 
@@ -93,7 +114,7 @@ void append_bits (Symbol *symbol_table, int p, int start, int end) {
     }
 }
 
-void write_block (FILE * code_file, int block_size, Symbol *symbol_table) {
+void write_block_code (FILE * code_file, int block_size, Symbol *symbol_table) {
     int i;
     for (i = 0; i < 256; i++) {
         if (symbol_table[i].code)

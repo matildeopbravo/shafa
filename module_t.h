@@ -7,8 +7,15 @@
 // the appropriate Shannon Fano coding for the provided file name.
 void generatecode (char *freqs_filename);
 
+//Writes the size of the next block in the frequency file to the code file,
+//including the appending '@' character.
+void write_block_size (FILE *freqs_filename, FILE *code_file);
+
 // Initializes a table containing the data of the 256 symbols in a block
 void initialize_table (Symbol *symbol_table, int n);
+
+// Reads frequencies to the pointed Symbol Table from the frequencies file.
+void read_block (FILE *freqs_file, Symbol *symbol_table);
 
 // Calculates difference between the frequencies of two pointed symbols
 int compare_freqs (void *a, void *b);
@@ -34,7 +41,7 @@ int freq_split (Symbol *symbol_table, int start, int end);
 void append_bits (Symbol *symbol_table, int p, int start, int end);
 
 // Writes one Shannon Fano code block from the code in the symbol_table to the
-// file pointed in code_file
-void write_block (FILE * code_file, int block_size, Symbol *symbol_table);
+// file pointed in code_file, including the final '@' character.
+void write_block_code (FILE * code_file, int block_size, Symbol *symbol_table);
 
 #endif /* MODULOT_H */
