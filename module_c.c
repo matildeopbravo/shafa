@@ -18,7 +18,23 @@ int count_numbers(char* c, FILE* fp_cod) {
     *c = tmp;
     return atoi(buffer);
 }
-// uint8_t str_to_num(const char* str, int start, int end) {}
+void shift_piece (Block * block , Piece * previous, Piece * current){
+    *current= { .code  =
+                .next =
+                .next_byte_index = }
+}
+
+void make_offset(Block * block,int offset) {
+    Piece * pieces_current = block->matrix + block->number_symbols * offset;
+    Piece * pieces_previous = block->matrix + block->number_symbols * (offset-1);
+
+    for(int i = 0 ; i < block->number_symbols ; i++ ){
+        shift_piece(block, pieces_previous+i, pieces_current+i);
+    }
+
+
+}
+
 uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
 
     uint8_t num = 0;
@@ -37,6 +53,7 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
         arr[byte] = num;
     }
     if (size % 8 != 0) {
+        num = 0;
         for (int j = 7; i < size; i++, j--) {
             if (str[i] == '1') {
                 num += 1 << j;  // num = num + 2^j
@@ -55,12 +72,9 @@ const Piece* get_piece(
     return matrix + number_symbols * offset + symbol_index;
 }
 
-void matrix_optimization(Block * block) {
-    // create_offsets
-}
 void start_matrix (Block *  block, uint8_t * symbols) {
     Piece* matrix = malloc(sizeof(Piece) * block->number_symbols * 8);
-    printf("%d",block->number_symbols);
+    printf("%d symbols \n",block->number_symbols);
     block->matrix = matrix;
     // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
     size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
@@ -77,8 +91,14 @@ void start_matrix (Block *  block, uint8_t * symbols) {
     }
     printf("Code will have %zu bytes\n", CODE_MAX_SIZE);
 }
+void matrix_optimization(Block * block, uint8_t * symbols) {
+    start_matrix(block,symbols);
+    for (int i = 1; i < 8 ; i++) {
+        make_offset(block,i);
 
-void make_offsets (Piece * matrix){}
+    }
+}
+
 void print_dictionary(FullSequence* full_seq) {
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
         printf("Bloco: %zu -> Size : %zu\n", i, full_seq->blocks[i].block_size);
@@ -125,7 +145,7 @@ void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
     }
     full_seq->blocks[nblock].number_symbols = index;
     full_seq->blocks[nblock].biggest_code_size = max_size;
-    start_matrix(&full_seq->blocks[nblock], symbols);
+    matrix_optimization(&full_seq->blocks[nblock], symbols);
 }
 
 int read_cod(char* cod_file, FullSequence* full_seq) {
@@ -195,6 +215,16 @@ int main() {
     FullSequence* my_sequence = calloc(sizeof(FullSequence), 1);
     read_cod("aaa.txt.rle.cod", my_sequence);
     print_dictionary(my_sequence);
+    putchar('\n');
+    for (int i = 0; i < my_sequence->number_blocks; i++) {
+    size_t CODE_MAX_SIZE = (((my_sequence->blocks[i].biggest_code_size - 1) | 7) + 9) / 8;
+        for (int j = 0;  j < my_sequence->blocks[i].number_symbols; j++) {
+            printf("code begins \n");
+            Piece x =*get_piece(my_sequence->blocks[i].matrix,0,j,my_sequence->blocks[i].number_symbols);
+            for (int y = 0; y < CODE_MAX_SIZE ; y++ )
+            printf("%d\n",x.code[y]);
+        }
+    }
     destructor(my_sequence);
     printf("%zu",sizeof(struct block));
     return 0;
