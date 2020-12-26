@@ -464,16 +464,15 @@ int modulo_f(char const *filename, size_t const the_block_size,
     return -1;
 
   /* RLE */
+  if (compression == COMPRESSED) {
+    /* fazer coisas */
+  }
 
-  /* fazer compressao ou nao */
-  /* se hover compressao fazer contagem dos simbolos ao mesmo tempo q se faz
-   * a compressao */
-
-  /* escrever as frequencias */
   /* apresentar menu final */
   return sucess;
 }
 
+/* pode se apagar antes de enviar */
 void print_freq(FreqBlock *freq) {
   FreqBlock *aux = freq;
   while (aux) {
@@ -495,98 +494,6 @@ int 👑() {
 int main() {
   👑();
   /* experiencias: */
-  const char *name1 = "Aola.txt";
-  /*--------------------------------------------------------*/
-  /* testar writeFreq */
-  /* testado com 1->10 blocos */
-  /* a dar 👌🏻 */
-  int a[uint_range];
-  for (int i = 0; i < uint_range; i++) {
-    a[i] = i;
-  }
-
-  int a1[uint_range], a2[uint_range];
-  for (int i = 0; i < uint_range; i++) {
-    a1[i] = 50;
-    a2[i] = 111;
-  }
-
-  FreqBlock *e = initializeFreq(a);
-  arrayToFreqBlock(a1, e);
-  arrayToFreqBlock(a2, e);
-  arrayToFreqBlock(a1, e);
-  arrayToFreqBlock(a2, e);
-  arrayToFreqBlock(a1, e);
-  arrayToFreqBlock(a, e);
-  arrayToFreqBlock(a2, e);
-  arrayToFreqBlock(a1, e);
-  arrayToFreqBlock(a, e);
-
-  /* iniciar a estrutura do file em blocos */
-  BlockFiles *BlockFile = initializeBlockFiles();
-
-  /*bloco*/
-  Blocks *bloco1 = initializeBlocks();
-  (*bloco1).block_size = 1234;
-  addedBlockTOBloc_file(BlockFile, bloco1);
-  printf("ate ao 1 \n");
-  /*bloco*/
-  Blocks *bloco2 = initializeBlocks();
-  (*bloco2).block_size = 5678;
-  addedBlockTOBloc_file(BlockFile, bloco2);
-  printf("ate ao 2 \n");
-  /*bloco*/
-  Blocks *bloco3 = initializeBlocks();
-  (*bloco3).block_size = 999;
-  addedBlockTOBloc_file(BlockFile, bloco3);
-  printf("ate ao 3 \n");
-  /*bloco*/
-  Blocks *bloco4 = initializeBlocks();
-  (*bloco4).block_size = 333;
-  addedBlockTOBloc_file(BlockFile, bloco4);
-  printf("ate ao 4 \n");
-  /*bloco*/
-  Blocks *bloco5 = initializeBlocks();
-  (*bloco5).block_size = 999;
-  addedBlockTOBloc_file(BlockFile, bloco5);
-  printf("ate ao 5 \n");
-  /*bloco*/
-  Blocks *bloco6 = initializeBlocks();
-  (*bloco6).block_size = 13;
-  addedBlockTOBloc_file(BlockFile, bloco6);
-  printf("ate ao 6 \n");
-  /*bloco*/
-  Blocks *bloco7 = initializeBlocks();
-  (*bloco7).block_size = 20;
-  addedBlockTOBloc_file(BlockFile, bloco7);
-  printf("ate ao 7 \n");
-  /*bloco*/
-  Blocks *bloco8 = initializeBlocks();
-  (*bloco8).block_size = 777;
-  addedBlockTOBloc_file(BlockFile, bloco8);
-  printf("ate ao 8 \n");
-
-  Blocks *bloco9 = initializeBlocks();
-  (*bloco9).block_size = 777;
-  addedBlockTOBloc_file(BlockFile, bloco9);
-  printf("ate ao 9 \n");
-  Blocks *bloco10 = initializeBlocks();
-  (*bloco10).block_size = 777;
-  addedBlockTOBloc_file(BlockFile, bloco10);
-  printf("ate ao 10 \n");
-
-  FILE *fp = fopen("try.txt.freq", "w");
-  int resul = writeFreq(fp, name1, BlockFile, e);
-
-  /* int resul = writeFreq(NULL, name1, BlockFile, e); */
-  /* o ficheiro foi fechado dentro da funcao writeFreq
-   * n deveria ser */
-  printf("Write Freq done :%d \n", resul);
-  printf("\n");
-  free(BlockFile);
-  free(e);
-  /*--------------------------------------------------------*/
-
   /* ------------------------------------------------------ */
   /* testar print_modulo_f */
   unsigned int n_blocks = 5;
@@ -598,7 +505,6 @@ int main() {
   /* --------------------------------------------------- */
 
   /*  mike  */
-
   /* imprime os blocos */
   /* Blocks *ola = start->blocks; */
   /* for (int r = 0; r < start->num_blocks; r++) { */
@@ -607,23 +513,13 @@ int main() {
   /*   printByteVec(ola->blocklist); */
   /*   ola = ola->prox; */
   /* } */
-
-  /* Blocks ->  FreqBlock*/
-  FreqBlock *freq = calFreq(start);
-
-  /* print_freq(freq); */
-
-  FILE *file_freq = fopen("new.freq", "w");
-  int deu = writeFreq(file_freq, "freq.txt", start, freq);
-  printf("\n deu: %d", deu);
-
   int arroz = modulo_f("bbb.txt", 2048, NOT_COMPRESSED);
-
-  /* Blocks -> Blocs_C */
+  if (arroz != 1) {
+    printf("algo deu mal\n");
+  }
 
   /*-------------------------------------------*/
   printf("\n");
-
   printf("🤔Tava a dar🤔 \n");
   printf("🤔Agora da sem erros?!🤔 \n");
   printf("🤔Hummmm.. era suposto n dar🤔 \n\n");
