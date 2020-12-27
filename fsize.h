@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+
 long long fsize(FILE *fp_in, unsigned char *filename, unsigned long *the_block_size, long *size_of_last_block);
 
 /*
@@ -84,7 +83,9 @@ long long fsize(FILE *fp_in, unsigned char *filename, unsigned long *the_block_s
       { *size_of_last_block = total - n_blocks*block_size;
         n_blocks++;
       }
-      return(n_blocks);
+      fseek_error = fseek(fp, 0L, SEEK_SET);
+      if (fseek_error) return (FSIZE_ERROR_IN_FILE);
+      else return(n_blocks);
     }
 
     n_blocks = FSIZE_MAX_SIZE_FSEEK/block_size-1; // In reality fseek() can't handle FSIZE_MAX_SIZE_FSEEK of 2GBytes, so let's use a smaller size
