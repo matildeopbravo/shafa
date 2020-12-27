@@ -90,7 +90,7 @@ size_t fsize(FILE *fp_in, char const *filename, size_t *the_block_size,
   fseek_error = fseek(fp, 0L, SEEK_END);
   if (!fseek_error) {
     total = ftell(fp);
-    if (total == FSIZE_ERROR_IN_FTELL)
+    if (total == (size_t)FSIZE_ERROR_IN_FTELL)
       return (FSIZE_ERROR_IN_FILE);
     n_blocks = total / block_size;
     if (n_blocks * block_size == total)
