@@ -46,4 +46,6 @@ typedef struct symbol {
   char *code;
 } Symbol;
 
+char *replace_str(char *str, char *orig, char *rep);
+
 #endif /* DATA_H */

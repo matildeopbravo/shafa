@@ -1,8 +1,11 @@
 /**
- @file module_f.c
- Responsible for compressing RLE and calculating frequencies.
- Responsavel pela compressao RLE e pelo calculo das frequencias.
-*/
+ * @file module_f.c
+ * @author Mariana Dinis Rodrigues e Mike
+ * @date 27 Dezembro 2020
+ * Responsible for compressing RLE and calculating frequencies.
+ * @brief Responsavel pela compressao RLE e pelo calculo das frequencias.
+ */
+
 #include "module_f.h"
 #include "dynamic_arrays.h"
 #include "fsize_.h"
@@ -521,7 +524,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 254 */
-    while (j < (uint_range - 1)) {
+    while (j < (uint_range - 2)) {
       num_freq = aux_Freq->freq[j];
 
       if (last != num_freq) {
@@ -628,10 +631,10 @@ int module_f(char const *filename, size_t const the_block_size,
 
   size_t n_blocks = 0, size_last_block = 0, block_size = the_block_size;
 
-  /* determine_size(filename, &n_blocks, &size_last_block, &block_size); */
-
   FILE *fp1 = fopen(filename, "r");
+  /* funcao do stor com algumas alteracoes */
   n_blocks = fsize(fp1, filename, &block_size, &size_last_block);
+  /* fclose(fp1); */
 
   /* apagar depois */
   printf("%ld, %ld, %ld,\n ", n_blocks, size_last_block, block_size);
@@ -668,35 +671,44 @@ int module_f(char const *filename, size_t const the_block_size,
 
   char *filename_rle = filename_;
   strcat(filename_rle, ".rle");
-  wfile_rle = fopen(filename_rle, "w");
+  /* wfile_rle = fopen(filename_rle, "w"); */
 
   if (FORCE_FLAG) {
+    wfile_rle = fopen(filename_rle, "w");
+    /* comprimir os blocos */
     write_compressed(wfile_rle, self);
-    /* calcular as freqs e imprimir */
     self->compression_type = COMPRESSED;
 
+    /* Calcular as frequencias por bloco */
     FreqBlock *freq_file_rle = calFreq_RLE(self);
+
     char *filename_rle_freq = filename_rle;
     strcat(filename_rle, ".freq");
     wfile_rle = fopen(filename_rle, "w");
+    /* imprimir as frequencias */
     error = writeFreq(wfile, filename_rle_freq, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
+    else
+      free_Freq(freq_file_rle);
 
   } else if (calcCompress(self->blocks_c->tBList) > 5) {
+    /* comprimir os blocos */
     write_compressed(wfile_rle, self);
-    /* calcular as freqs e imprimir */
     self->compression_type = COMPRESSED;
-
+    /* Calcular as frequencias */
     FreqBlock *freq_file_rle = calFreq_RLE(self);
     char *filename_rle_freq = filename_rle;
     strcat(filename_rle, ".freq");
-    wfile_rle = fopen(filename_rle, "w");
+    /* escrever as frequencias */
     error = writeFreq(wfile, filename_rle_freq, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
+    else
+      free_Freq(freq_file_rle);
   }
 
+  /* apagar depois... ta a dar mal */
   float block_1 = calcCompress(self->blocks_c->tBList);
   float blocks = calcCompress(self->blocks_c->tBList);
   printf("First Block compression -> %d \n", (int)block_1);
