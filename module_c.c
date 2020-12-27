@@ -5,6 +5,45 @@
 #include <stdlib.h>
 #include <string.h>
 
+Piece* get_piece(
+    Piece* matrix,
+    uint8_t offset,
+    uint8_t symbol_index,
+    uint8_t number_symbols) {
+    return matrix + number_symbols * offset + symbol_index;
+}
+
+int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
+    fprintf(fp_shaf,"@%zu@",block->block_size);
+    uint8_t offset = 0;
+    int error = 0;
+    for (size_t i = 0; i < block->block_size ; i++) {
+       uint8_t index =block->symbol_dictionary[fgetc(fp_input)].index;
+       Piece * piece = get_piece(block->matrix,offset,index,block->number_symbols);
+    }
+
+    return error;
+
+}
+
+
+int write_file (FullSequence * full_seq, char const * shaf_file, char const * input_file) {
+
+    int error = 0;
+    FILE * fp_shaf = fopen(shaf_file,"bw+");
+    FILE * fp_input = fopen(input_file,"r");
+    if (!fp_input || !fp_shaf) return 1;
+
+    fprintf(fp_shaf,"@%zu",full_seq->number_blocks);
+    for (size_t i = 0 ; i < full_seq->number_blocks ; i++) {
+        write_block(&full_seq->blocks[i], fp_shaf,fp_input);
+    }
+
+    fclose(fp_shaf);
+    fclose(fp_input);
+    return error;
+}
+
 int count_numbers(char* c, FILE* fp_cod) {
     char tmp = *c;
     char buffer[20];
@@ -26,8 +65,7 @@ void shift_piece(Piece* previous, Piece* current, size_t number_symbols) {
         current->code[i] += (previous->code[i - 1] & 1) << 7;
     }
     current->next = previous->next == 7 * number_symbols ? 0 : previous->next + number_symbols;
-    current->next_byte_index = previous->next_byte_index;
-    current->next_byte_index += previous->next == 7 * number_symbols ? 1 : 0;
+    current->next_byte_index = previous->next_byte_index + (previous->next == 7 * number_symbols);
 }
 
 void make_offset(Block* block, int offset) {
@@ -70,13 +108,6 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
     return arr;
 }
 
-Piece* get_piece(
-    Piece* matrix,
-    uint8_t offset,
-    uint8_t symbol_index,
-    uint8_t number_symbols) {
-    return matrix + number_symbols * offset + symbol_index;
-}
 
 void start_matrix(Block* block, uint8_t* symbols) {
     Piece* matrix = malloc(sizeof(Piece) * block->number_symbols * 8);
@@ -144,15 +175,14 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
     enum parameters param = START;
     int nblock = 0, not_finished = 1;
     size_t size = 0;
-    int error = 1;
+    int error = 0;
 
     FILE* fp_cod = fopen(cod_file, "r");
-    if (!fp_cod) return error;;
+    if (!fp_cod) return 1;
     char c = fgetc(fp_cod);
 
-    for (int i = 0; not_finished; i++) {
+    for (int i = 0; not_finished && !error; i++) {
         if (c == '@') {
-            error = 0;
             switch (i) {
                 case 0:
                     full_seq->compression_type = fgetc(fp_cod);
@@ -186,7 +216,11 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
                     break;
             }
         }
+        else {
+            error = 1;
+        }
     }
+    fclose(fp_cod);
     return error;
 }
 void destructor(FullSequence* sequence) {
@@ -241,17 +275,22 @@ void print_matrix(FullSequence * full_seq) {
 
 int main() {
     char const* symbol_file = "aaa.txt.rle";
-    char* cod_file = malloc(strlen(symbol_file) + 5);  // (".cod" ++ '\0')
+    char* cod_file = malloc(strlen(symbol_file) + strlen(".cod") + 1 );
     strcpy(cod_file, symbol_file);
     strcat(cod_file, ".cod");  // codfile = "input.txt.rle.cod"
     FullSequence* my_sequence = calloc(sizeof(FullSequence), 1);
     int x = read_cod(cod_file, my_sequence);
     if (x)  printf("Couldn't open file %s",cod_file);
     print_dictionary(my_sequence);
+    char * shaf_file = malloc(strlen(symbol_file) + strlen(".shaf") + 1) ;
+    strcpy(shaf_file,symbol_file);
+    strcat(shaf_file, ".shaf");
+    write_file(my_sequence,shaf_file);
     //print_matrix(my_sequence);
     putchar('\n');
     print_console(my_sequence,"aaa.txt");
     free(cod_file);
+    free(shaf_file);
     destructor(my_sequence);
     return 0;
 }
