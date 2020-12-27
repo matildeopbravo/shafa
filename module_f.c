@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 /* #include "fsize.h" */
 
 /* FILE */
@@ -29,7 +30,6 @@ void closeFile(FILE **file) {
 }
 
 /* relativo as frequencias */
-
 /* FREQUENCY */
 /* Allocate memory for frequencies */
 FreqBlock *initializeFreq(int array[uint_range]) {
@@ -42,6 +42,16 @@ FreqBlock *initializeFreq(int array[uint_range]) {
   return e;
 }
 
+/* libertar memoria */
+void free_Freq(FreqBlock *e) {
+  FreqBlock *aux;
+  while (e) {
+    aux = e;
+    e = e->prox;
+    free(aux);
+  }
+}
+
 /* BLOCKS */
 Blocks *initializeBlocks() {
   Blocks *e = (Blocks *)calloc(1, sizeof(Blocks));
@@ -51,6 +61,19 @@ Blocks *initializeBlocks() {
   return e;
 }
 
+void free_Blocks(Blocks *e) {
+  Blocks *aux;
+  ByteVec *aux_vec;
+  while (e) {
+    aux = e;
+    aux_vec = e->blocklist;
+    e->blocklist = NULL;
+    byte_vec_del(aux_vec);
+    e = e->prox;
+    free(aux);
+  }
+}
+
 Blocks_C *initializeBlocks_C() {
   Blocks_C *e = (Blocks_C *)calloc(1, sizeof(Blocks_C));
   e->prox = NULL;
@@ -58,12 +81,34 @@ Blocks_C *initializeBlocks_C() {
   e->tBList = NULL;
   return e;
 }
+
+void free_Blocks_C(Blocks_C *e) {
+  Blocks_C *aux;
+  TuppleVec *aux_vec;
+  while (e) {
+    aux = e;
+    aux_vec = e->tBList;
+    e->tBList = NULL;
+    tupple_vec_del(aux_vec);
+    e = e->prox;
+    free(aux);
+  }
+}
+
 BlockFiles *initializeBlockFiles() {
   BlockFiles *e = (BlockFiles *)calloc(1, sizeof(BlockFiles));
   e->blocks = NULL;
+  e->blocks_c = NULL;
   e->compression_type = NOT_COMPRESSED;
   e->num_blocks = 0;
   return e;
+}
+
+void free_Blocks_file(BlockFiles *e) {
+  free_Blocks(e->blocks);
+  free_Blocks_C(e->blocks_c);
+  free(e);
+  e = NULL;
 }
 
 /* Adiciona um bloco (Blocks) no nosso BlockFiles */
@@ -93,6 +138,7 @@ void arrayToFreqBlock(int array[uint_range], FreqBlock *e) {
     aux->prox = new;
   } else
     e = new;
+  /* nada de dar free ao aux ou ao new */
 }
 
 /* mike */
@@ -167,7 +213,8 @@ TuppleVec *compress(ByteVec const *self) {
   return t;
 }
 
-/* NAO DA */
+/* houve mudanca nas funcoes */
+/* NAO DA || alterar */
 void Block_to_RLE(BlockFiles *file) {
   size_t i = 0;
   /* size_t x = 0; */
@@ -194,8 +241,8 @@ void Block_to_RLE(BlockFiles *file) {
 int write_compressed(FILE *file, TuppleVec const *self) {
   uint8_t x, temp, y;
   ByteTupple b;
-  size_t i = 0;
-  for (; i < self->used; i++) {
+  size_t i = 0, used = tupple_vec_used(self);
+  for (; i < used; i++) {
     temp = 0;
     b = tupple_vec_index(self, i);
     x = b.byte;
@@ -236,6 +283,8 @@ int checkSum(ByteVec *self, TuppleVec *tupplevec) {
   return 1;
 }
 
+/* recebe um file e coloca-o por blocos na nossa estrutura de dados
+ * Recebe um start inicializado sem nada */
 int building(FILE *file, BlockFiles *start, size_t const n_blocks,
              size_t const size_last_block, size_t const block_size,
              size_t *used) {
@@ -264,7 +313,8 @@ int building(FILE *file, BlockFiles *start, size_t const n_blocks,
 }
 
 /* 1. dar outro nome
- * Recebe um BlockFiles e retorna as suas frequencias */
+ * Recebe um BlockFiles e retorna as suas frequencias na nossa estrutura de
+ * freqs */
 FreqBlock *calFreq(BlockFiles const *file) {
   if (file) {
     Blocks *blocks = file->blocks;
@@ -297,6 +347,56 @@ FreqBlock *calFreq(BlockFiles const *file) {
       /* preencher o array com as freq */
       for (i = 0; i < byte_vec_used(vec); i++)
         array[byte_vec_index(vec, i)]++;
+
+      /* adicionar as frequencias */
+      arrayToFreqBlock(array, freq);
+      num++;
+      blocks = blocks->prox;
+      used = used_last;
+    }
+    return freq;
+  } else
+    return NULL;
+}
+
+FreqBlock *calFreq_RLE(BlockFiles const *file) {
+  if (file) {
+    Blocks_C *blocks = file->blocks_c;
+    int num_blocks = file->num_blocks, num = 0;
+    TuppleVec *vec = file->blocks_c->tBList;
+    size_t i = 0;
+    int array[uint_range];
+    for (; i < uint_range; i++)
+      array[i] = 0;
+
+    /*1 bloco*/
+    ByteTupple aux;
+    size_t used = tupple_vec_used(vec);
+    size_t used_last = used;
+    for (i = 0; i < used; i++) {
+      aux = tupple_vec_index(vec, i);
+      array[aux.byte]++;
+    }
+
+    blocks = blocks->prox;
+    num++;
+
+    FreqBlock *freq = initializeFreq(array);
+    /* outros blocos */
+    while (num <= num_blocks && blocks) {
+      vec = blocks->tBList;
+      used = tupple_vec_used(vec);
+
+      /* garantir q o array esta todo a 0 */
+      for (i = 0; i < uint_range; i++)
+        array[i] = 0;
+
+      /* preencher o array com as freq */
+      used = tupple_vec_used(vec);
+      for (i = 0; i < used; i++) {
+        aux = tupple_vec_index(vec, i);
+        array[aux.byte]++;
+      }
 
       /* adicionar as frequencias */
       arrayToFreqBlock(array, freq);
@@ -348,7 +448,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   if (fp_in != NULL)
     fp = fp_in;
   else {
-    fp = fopen(filename, "r"); /*  fp = fopen(filename, "rb");*/
+    fp = fopen(filename, "r");
     if (fp == NULL)
       return WriteFreq_ERROR_IN_FILE;
   }
@@ -367,7 +467,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%d%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 254 */
-    while (j < (uint_range - 1)) { /* tentar melhorar a eficacia...*/
+    while (j < (uint_range - 1)) {
       num_freq = aux_Freq->freq[j];
 
       if (last != num_freq) {
@@ -397,15 +497,16 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   fclose(fp);
   return sucess;
 }
-void print_modulo_f(const char *filename, unsigned int n_blocks,
-                    enum compression compression, unsigned int time) {
+
+void print_module_f(const char *filename, unsigned int n_blocks,
+                    enum compression compression, double time) {
   unsigned int percentage_compression = 100; /* mudar variavel!!!! */
 
   /* FALTAM COISAAAASSS !!! */
   /* so onde estao os pontos de interrogacao */
   fprintf(stdout, "\n");
   fprintf(stdout, "Mariana Rodrigues, a93329 && Mike, a \n");
-  fprintf(stdout, "MIEI/CD -Dezembro-2020 \n");
+  fprintf(stdout, "MIEI/CD 26-Dezembro-2020 \n");
   fprintf(stdout, "Módulo: f (Cálculo das frequências dos símbolos) \n");
   fprintf(stdout, "Número de blocos: %d\n", n_blocks);
   fprintf(stdout, "Tamanho dos blocos analisados: \n"); /* ?!!? */
@@ -415,24 +516,29 @@ void print_modulo_f(const char *filename, unsigned int n_blocks,
     fprintf(stdout,
             "Tamanho dos blocos analisados no ficheiro RLE: \n"); /* ?!!? */
   }
-  fprintf(stdout, "Tempo de execução do módulo (milissegundos): %d\n", time);
+  fprintf(stdout, "Tempo de execução do módulo (milissegundos): %f\n", time);
   fprintf(stdout, "Ficheiros gerados: %s.freq", filename);
   if (compression == COMPRESSED)
     fprintf(stdout, ", %s.rle.freq\n", filename);
   fprintf(stdout, "\n");
 }
 
-int modulo_f(char const *filename, size_t const the_block_size,
+int module_f(char const *filename, size_t const the_block_size,
              enum compression compression) {
+
+  clock_t Ticks[2];
+  /* Start time */
+  Ticks[0] = clock();
 
   /* ler o ficheiro */
   char filename_[3064];
   strcpy(filename_, filename);
+
   size_t x = 0;
   FILE *rfile, *wfile;
   rfile = fopen(filename, "rb");
   if (!rfile)
-    return -1;
+    return Module_f_ERROR_IN_FILE;
 
   /* SEM COMPRESSAO */
   /*Iniciamos a nossa estrutura de dados*/
@@ -447,12 +553,12 @@ int modulo_f(char const *filename, size_t const the_block_size,
                        the_block_size, &x);
 
   if (error != 1)
-    return -2;
+    return Module_f_ERROR_IN_BLOCKFILES;
 
   /* Iremos determinar a frequencia de cada bloco */
   FreqBlock *freq_file = calFreq(block_file);
   if (!freq_file)
-    return -3;
+    return Module_f_ERROR_IN_FREQ;
 
   /* Escrever as frequencias obtidas (sem compressao) */
   char *filename_freq = filename_;
@@ -461,7 +567,7 @@ int modulo_f(char const *filename, size_t const the_block_size,
   wfile = fopen(filename_freq, "w");
   error = writeFreq(wfile, filename_freq, block_file, freq_file);
   if (error != 1)
-    return -1;
+    return Module_f_ERROR_IN_FILE;
 
   /* RLE */
   if (compression == COMPRESSED) {
@@ -469,6 +575,14 @@ int modulo_f(char const *filename, size_t const the_block_size,
   }
 
   /* apresentar menu final */
+  /* End time */
+  Ticks[1] = clock();
+  double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+  print_module_f(filename, num_blocks, compression, time);
+
+  free_Freq(freq_file);
+  free_Blocks_file(block_file);
+
   return sucess;
 }
 
@@ -495,16 +609,6 @@ int main() {
   👑();
   /* experiencias: */
   /* ------------------------------------------------------ */
-  /* testar print_modulo_f */
-  unsigned int n_blocks = 5;
-  unsigned int time = 123;
-  enum compression argh = COMPRESSED;
-  /* enum compression argh=NOT_COMPRESSED; */
-  const char *filename = "Aola.txt";
-  print_modulo_f(filename, n_blocks, argh, time);
-  /* --------------------------------------------------- */
-
-  /*  mike  */
   /* imprime os blocos */
   /* Blocks *ola = start->blocks; */
   /* for (int r = 0; r < start->num_blocks; r++) { */
@@ -513,12 +617,14 @@ int main() {
   /*   printByteVec(ola->blocklist); */
   /*   ola = ola->prox; */
   /* } */
-  int arroz = modulo_f("bbb.txt", 2048, NOT_COMPRESSED);
+
+  /* chama module f */
+  int arroz = module_f("bbb.txt", 2048, NOT_COMPRESSED);
   if (arroz != 1) {
     printf("algo deu mal\n");
   }
-
   /*-------------------------------------------*/
+
   printf("\n");
   printf("🤔Tava a dar🤔 \n");
   printf("🤔Agora da sem erros?!🤔 \n");

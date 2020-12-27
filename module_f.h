@@ -23,6 +23,11 @@
 /* Errors related to function building */
 #define BUILDING_ERROR_IN_FILE -1 /* ERROR: Opening file */
 
+/* Errors related to function module_f */
+#define Module_f_ERROR_IN_FILE -1       /* ERROR: Opening file */
+#define Module_f_ERROR_IN_FREQ -2       /* ERROR: Reading the frequency */
+#define Module_f_ERROR_IN_BLOCKFILES -3 /* ERROR: Reading the block Files */
+
 enum compression { NOT_COMPRESSED, COMPRESSED } check;
 
 /* FILE */
