@@ -57,3 +57,7 @@ dkms.conf
 # Example files
 Examples/
 
+bbb*
+f
+new.freq
+try.txt*
