@@ -3,7 +3,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include "dynamic_arrays.h"
 
 Piece* get_piece(
     Piece* matrix,
@@ -14,14 +16,45 @@ Piece* get_piece(
 }
 
 int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
-    fprintf(fp_shaf,"@%zu@",block->block_size);
-    uint8_t offset = 0;
-    int error = 0;
-    for (size_t i = 0; i < block->block_size ; i++) {
-       uint8_t index =block->symbol_dictionary[fgetc(fp_input)].index;
-       Piece * piece = get_piece(block->matrix,offset,index,block->number_symbols);
-    }
+    ByteVec * vec = byte_vec_new();
 
+    int error = 0;
+    int end = 1;
+    Piece * piece = get_piece(block->matrix,0,0,block->number_symbols);
+
+    for (size_t symbol = 0; symbol < block->block_size ; symbol++) {
+        uint8_t index = block->symbol_dictionary[fgetc(fp_input)].index;
+        piece += index;
+
+        for (int i = 0; i <= piece->byte_index ; i++) {
+            if (piece->next == 0 && piece->byte_index == i) {
+                break;
+            }
+            else {
+                if (end){
+                    byte_vec_push(vec, piece->code[i]);
+                }
+                else {
+                    vec->vec[byte_vec_used(vec)-1] += piece->code[i];
+                    if (i == piece->byte_index - 1) {
+                        end=1;
+                    }
+                }
+            }
+        }
+       end = !piece->next;
+       piece = block->matrix + piece->next;
+    }
+    fprintf(fp_shaf,"@%zu@",byte_vec_used(vec));
+
+   for (size_t i = 0; i < vec->used ; i++) {
+       printf("%d ",byte_vec_index(vec,i));
+   }
+   putchar('\n');
+
+   for (int i = 0; i < byte_vec_used(vec); i++) {
+       fputc(byte_vec_index(vec,i),fp_shaf);
+   }
     return error;
 
 }
@@ -30,7 +63,7 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
 int write_file (FullSequence * full_seq, char const * shaf_file, char const * input_file) {
 
     int error = 0;
-    FILE * fp_shaf = fopen(shaf_file,"bw+");
+    FILE * fp_shaf = fopen(shaf_file,"w+b"); // binary is failing
     FILE * fp_input = fopen(input_file,"r");
     if (!fp_input || !fp_shaf) return 1;
 
@@ -59,13 +92,13 @@ int count_numbers(char* c, FILE* fp_cod) {
 }
 
 void shift_piece(Piece* previous, Piece* current, size_t number_symbols) {
-    for (size_t i = previous->next_byte_index; ; i--) {
+    for (size_t i = previous->byte_index; ; i--) {
         current->code[i] = (previous->code[i] >> 1);
         if (i == 0) break;
         current->code[i] += (previous->code[i - 1] & 1) << 7;
     }
     current->next = previous->next == 7 * number_symbols ? 0 : previous->next + number_symbols;
-    current->next_byte_index = previous->next_byte_index + (previous->next == 7 * number_symbols);
+    current->byte_index = previous->byte_index + (previous->next == 7 * number_symbols);
 }
 
 void make_offset(Block* block, int offset) {
@@ -123,7 +156,7 @@ void start_matrix(Block* block, uint8_t* symbols) {
         block->matrix[tuple.index] = (Piece){
             .code = make_code(tuple.sf_code, size, CODE_MAX_SIZE),
             .next = (size % 8) * (size_t) block->number_symbols,
-            .next_byte_index = size / 8};
+            .byte_index = size / 8};
     }
     for (uint8_t i = 1 ; i < 8 ; i++) {
         for (int j = 0 ; j < block->number_symbols; j++){
@@ -258,12 +291,13 @@ void print_console(FullSequence* full_seq, char* filename) {
     printf("Ficheiro gerado: %s.shaf\n", filename);
 }
 void print_matrix(FullSequence * full_seq) {
+    int z = 0;
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
      size_t CODE_MAX_SIZE = (((full_seq->blocks[i].biggest_code_size - 1) | 7) + 9) / 8;
         for (int offset = 0; offset < 8 ; offset++){
-            for (int j = 0; j < full_seq->blocks[i].number_symbols ; j++) {
+            for (int j = 0; j < full_seq->blocks[i].number_symbols ; z++,j++) {
                 Piece * pc = get_piece(full_seq->blocks[i].matrix,offset,j,full_seq->blocks[i].number_symbols);
-                printf("Bloco : %zu , offset: %d, symbol %d : ",i,offset, j);
+                printf("%d : Bloco : %zu , offset: %d, symbol: %d, next: %zu * %d  ",z,i,offset, j,pc->next/full_seq->blocks[i].number_symbols, full_seq->blocks[i].number_symbols);
                 for (size_t i = 0; i < CODE_MAX_SIZE ; i++) {
                     printf("%d ",pc->code[i]);
                 }
@@ -282,11 +316,16 @@ int main() {
     int x = read_cod(cod_file, my_sequence);
     if (x)  printf("Couldn't open file %s",cod_file);
     print_dictionary(my_sequence);
+    printf("There are %zu blocks\n",my_sequence->number_blocks);
     char * shaf_file = malloc(strlen(symbol_file) + strlen(".shaf") + 1) ;
     strcpy(shaf_file,symbol_file);
     strcat(shaf_file, ".shaf");
-    write_file(my_sequence,shaf_file);
-    //print_matrix(my_sequence);
+    print_matrix(my_sequence);
+    write_file(my_sequence,shaf_file,symbol_file);
+    printf("There are %zu blocks\n",my_sequence->number_blocks);
+    //FILE * fp_shaf = fopen(shaf_file,"w+b"); // binary is failing
+    //FILE * fp_input = fopen(symbol_file,"r");
+    //write_block(&my_sequence->blocks[0],fp_shaf,fp_input);
     putchar('\n');
     print_console(my_sequence,"aaa.txt");
     free(cod_file);
