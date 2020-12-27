@@ -1,12 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "data.h"
 #include "module_t.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+#include "dynamic_arrays.h"
 
 void generatecode (char *freqs_filename) {
     // Read frequencies files
     // FILE *freqs_file = fopen(freqs_filename, "r");
+
 
     // Create Shannon Fano code file
     // char *output_name = ;
@@ -41,6 +43,31 @@ void generatecode (char *freqs_filename) {
     //
     // Print run stats
 }
+
+int initialize_code_file (FILE *input, FILE *output) {
+      int i = 0; // indice do array
+      uint8_t x = 0; // valor que esta no index do array
+      int nb = 0; // numero de blocos
+      int a = 0; // contador de arrobas
+      ByteVec *vector = loadArray(input, M); 
+      while (a < 2 && i < vector->used) {
+        x = byte_vec_index(vector, i);
+          if (x == '@' && a<2) {
+            a++;
+            fputc(x, output);
+            i++;
+            x = byte_vec_index(vector, i);
+            nb = 0;
+            while (x!='@') {
+              nb = (10*nb) + (x-48);
+              fputc(x, output);
+              i++;
+              x = byte_vec_index(vector, i);
+            }
+          }
+      }
+      return nb;
+}   
 
 void write_block_size (FILE *freqs_file, FILE *code_file) {
     int block_size;

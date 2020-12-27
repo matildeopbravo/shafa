@@ -7,6 +7,9 @@
 // the appropriate Shannon Fano coding for the provided file name.
 void generatecode (char *freqs_filename);
 
+// initializes the new .cod file and gets the block number.
+int initialize_code_file (FILE *input, FILE *output);
+
 //Writes the size of the next block in the frequency file to the code file,
 //including the appending '@' character.
 void write_block_size (FILE *freqs_filename, FILE *code_file);

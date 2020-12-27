@@ -28,15 +28,25 @@ void call_module(unsigned char module, char * filename, char * options []) {
     // chamar a funcao do modulo comas opcoes certas
 
   }
+  else {
+    printf("Módulo não existe.");
+  }
 
 
 }
 
 int main (int argc, char * argv []) {
 
-  char * ficheiro = argv[1];
-  unsigned char module = argv[3][0];
-  argv = argc > 4 ? argv + 4  : NULL ;
-  call_module(module,ficheiro,argv);
-  return 0;
+  int error = 0;
+  if (argc < 4 ) {
+    printf("Não foram fornecidos argumentos suficientes");
+    error = 1;
+  }
+  else {
+    char * ficheiro = argv[1];
+    unsigned char module = argv[3][0];
+    argv = argc > 4 ? argv + 4  : NULL ;
+    call_module(module,ficheiro,argv);
+  }
+  return error;
 }
