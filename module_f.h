@@ -2,6 +2,7 @@
 #define __MODULE_F_H_
 
 #include "dynamic_arrays.h"
+#include "data.h"
 
 #define k 64000
 #define K 640000
@@ -28,7 +29,6 @@
 #define Module_f_ERROR_IN_FREQ -2       /* ERROR: Reading the frequency */
 #define Module_f_ERROR_IN_BLOCKFILES -3 /* ERROR: Reading the block Files */
 
-enum compression { NOT_COMPRESSED, COMPRESSED } check;
 
 /* FILE */
 

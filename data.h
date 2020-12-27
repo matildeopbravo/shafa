@@ -7,6 +7,7 @@
 
 enum compression { NOT_COMPRESSED, COMPRESSED };
 
+
 /* FILE */
 
 /* Block Values */

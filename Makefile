@@ -8,8 +8,8 @@ f: module_f.c module_f.h dynamic_arrays.c dynamic_arrays.h
 t: module_t.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-c: module_c.c
-	$(CC) $(CFLAGS) -o $@ $<
+c: main.o dynamic_arrays.o module_c.o
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
 	@rm -rf *.o c t f

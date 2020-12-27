@@ -1,11 +1,11 @@
-#include "module_c.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include "dynamic_arrays.h"
+#include "data.h"
+#include "module_c.h"
 
 Piece* get_piece(
     Piece* matrix,
@@ -17,7 +17,6 @@ Piece* get_piece(
 
 int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
     ByteVec * vec = byte_vec_new();
-
     int error = 0;
     int end = 1;
     Piece * piece = get_piece(block->matrix,0,0,block->number_symbols);
@@ -25,8 +24,7 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
     for (size_t symbol = 0; symbol < block->block_size ; symbol++) {
         uint8_t index = block->symbol_dictionary[fgetc(fp_input)].index;
         piece += index;
-
-        for (int i = 0; i <= piece->byte_index ; i++) {
+        for (size_t i = 0; i <= piece->byte_index ; i++) {
             if (piece->next == 0 && piece->byte_index == i) {
                 break;
             }
@@ -36,9 +34,7 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
                 }
                 else {
                     vec->vec[byte_vec_used(vec)-1] += piece->code[i];
-                    if (i == piece->byte_index - 1) {
-                        end=1;
-                    }
+                    end = i == (piece->byte_index - 1);
                 }
             }
         }
@@ -52,18 +48,17 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
    }
    putchar('\n');
 
-   for (int i = 0; i < byte_vec_used(vec); i++) {
+   for (size_t i = 0; i < byte_vec_used(vec); i++) {
        fputc(byte_vec_index(vec,i),fp_shaf);
    }
     return error;
-
 }
 
 
 int write_file (FullSequence * full_seq, char const * shaf_file, char const * input_file) {
 
     int error = 0;
-    FILE * fp_shaf = fopen(shaf_file,"w+b"); // binary is failing
+    FILE * fp_shaf = fopen(shaf_file,"w+b");
     FILE * fp_input = fopen(input_file,"r");
     if (!fp_input || !fp_shaf) return 1;
 
@@ -172,7 +167,7 @@ void matrix_optimization(Block* block, uint8_t* symbols) {
     }
 }
 
-void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
+void read_cod_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
     uint8_t index = 0;
     uint8_t symbols[DICT_SIZE];
     int max_size = 0;
@@ -242,7 +237,7 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
                             param = SEQUENCE;
                         }
                         else {  // param == sequence
-                            read_block(fp_cod, full_seq, &c, nblock++);
+                            read_cod_block(fp_cod, full_seq, &c, nblock++);
                             param = BLOCK_SIZE;
                         }
                     }
@@ -307,8 +302,9 @@ void print_matrix(FullSequence * full_seq) {
     }
 }
 
-int main() {
-    char const* symbol_file = "aaa.txt.rle";
+void module_c(char  * symbol_file) {
+
+
     char* cod_file = malloc(strlen(symbol_file) + strlen(".cod") + 1 );
     strcpy(cod_file, symbol_file);
     strcat(cod_file, ".cod");  // codfile = "input.txt.rle.cod"
@@ -331,5 +327,4 @@ int main() {
     free(cod_file);
     free(shaf_file);
     destructor(my_sequence);
-    return 0;
 }

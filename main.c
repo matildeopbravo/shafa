@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "data.h"
+//#include "module_f.h"
+//#include "module_t.h"
+#include "module_c.h"
+
 
 
 void call_module(unsigned char module, char * filename, char * options []) {
@@ -39,7 +39,7 @@ int main (int argc, char * argv []) {
 
   int error = 0;
   if (argc < 4 ) {
-    printf("Não foram fornecidos argumentos suficientes");
+    printf("Não foram fornecidos argumentos suficientes\n");
     error = 1;
   }
   else {

@@ -21,13 +21,13 @@ typedef struct piece {
     size_t byte_index;  // Index do byte até ao qual se faz shift
 } Piece;
 
-typedef struct block {
+typedef struct {
     size_t block_size;
     uint8_t number_symbols;
     size_t biggest_code_size;
     Piece * matrix;
-    SFTuple symbol_dictionary[DICT_SIZE];  // O array tem comprimento 256 (ascii
-                                           // extended?)
+    SFTuple symbol_dictionary[DICT_SIZE];
+
 } Block;
 
 typedef struct sequence {
@@ -46,9 +46,10 @@ void make_offset(Block* block, int offset);
 uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE);
 void start_matrix(Block* block, uint8_t* symbols);
 void matrix_optimization(Block* block, uint8_t* symbols);
-void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock);
+void read_cod_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock);
 int read_cod(char* cod_file, FullSequence* full_seq);
 void destructor(FullSequence* sequence);
 void print_dictionary(FullSequence* full_seq);
-void print_console(FullSequence* full_seq, char* filename);
+void print_console(FullSequence* , char* filename);
 void print_matrix(FullSequence * full_seq);
+void module_c(char  * symbol_file);
