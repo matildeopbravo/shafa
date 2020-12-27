@@ -12,18 +12,43 @@ typedef struct ByteVec {
   size_t size;
 } ByteVec;
 
-size_t byte_vec_size(ByteVec const *self);
+typedef struct ByteTupple {
+  uint8_t byte;
+  uint8_t count;
+} ByteTupple;
 
-size_t byte_vec_used(ByteVec const *self);
+typedef struct TuppleVec {
+  ByteTupple *vec;
+  size_t used;
+  size_t size;
+} TuppleVec;
 
-uint8_t byte_vec_index(ByteVec const *self, size_t index);
+size_t byte_vec_size(ByteVec const *);
 
-uint8_t byte_vec_pop(ByteVec *self);
+size_t byte_vec_used(ByteVec const *);
 
-ByteVec byte_vec_new();
+uint8_t byte_vec_index(ByteVec const *, size_t);
 
-void byte_vec_push(ByteVec *self, uint8_t v);
+uint8_t byte_vec_pop(ByteVec *);
 
-void byte_vec_del(ByteVec *self);
+ByteVec *byte_vec_new();
+
+void byte_vec_push(ByteVec *, uint8_t);
+
+void byte_vec_del(ByteVec *);
+
+size_t tupple_vec_size(TuppleVec const *);
+
+size_t tupple_vec_used(TuppleVec const *);
+
+ByteTupple tupple_vec_index(TuppleVec const *, size_t);
+
+ByteTupple tupple_vec_pop(TuppleVec *);
+
+TuppleVec *tupple_vec_new();
+
+void tupple_vec_push(TuppleVec *, uint8_t, uint8_t);
+
+void tupple_vec_del(TuppleVec *);
 
 #endif /* DYNAMIC_ARRAYS_H*/
