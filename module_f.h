@@ -58,6 +58,7 @@ typedef struct block_file {
 /* Struct for the blocks' frequency */
 typedef struct freq_block {
   int freq[uint_range];
+  /* unsigned int block_size; */
   struct freq_block *prox;
 } FreqBlock;
 

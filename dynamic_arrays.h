@@ -20,6 +20,7 @@ typedef struct ByteTupple {
 typedef struct TuppleVec {
   ByteTupple *vec;
   size_t used;
+  size_t n_used;
   size_t size;
 } TuppleVec;
 
