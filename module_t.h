@@ -10,6 +10,9 @@ void generatecode (char *freqs_filename);
 // initializes the new .cod file and gets the block number.
 int initialize_code_file (FILE *input, FILE *output);
 
+// prints the stats
+void printStat(int nblocks, size_t sizeb, double time, char *file)
+
 //Writes the size of the next block in the frequency file to the code file,
 //including the appending '@' character.
 void write_block_size (FILE *freqs_filename, FILE *code_file);
