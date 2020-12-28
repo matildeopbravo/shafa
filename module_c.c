@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include "dynamic_arrays.h"
 #include "data.h"
 #include "module_c.h"
@@ -21,7 +22,7 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
     int end = 1;
     Piece * piece = get_piece(block->matrix,0,0,block->number_symbols);
 
-    for (size_t symbol = 0; symbol < block->block_size ; symbol++) {
+    for (size_t symbol = 0; symbol < block->block_size_before ; symbol++) {
         uint8_t index = block->symbol_dictionary[fgetc(fp_input)].index;
         piece += index;
         for (size_t i = 0; i <= piece->byte_index ; i++) {
@@ -41,12 +42,8 @@ int write_block (Block * block, FILE * fp_shaf, FILE * fp_input) {
        end = !piece->next;
        piece = block->matrix + piece->next;
     }
+    block->block_size_after = byte_vec_used(vec);
     fprintf(fp_shaf,"@%zu@",byte_vec_used(vec));
-
-   for (size_t i = 0; i < vec->used ; i++) {
-       printf("%d ",byte_vec_index(vec,i));
-   }
-   putchar('\n');
 
    for (size_t i = 0; i < byte_vec_used(vec); i++) {
        fputc(byte_vec_index(vec,i),fp_shaf);
@@ -139,7 +136,6 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
 
 void start_matrix(Block* block, uint8_t* symbols) {
     Piece* matrix = malloc(sizeof(Piece) * block->number_symbols * 8);
-    printf("%d symbols \n", block->number_symbols);
     block->matrix = matrix;
     // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
     size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
@@ -158,7 +154,6 @@ void start_matrix(Block* block, uint8_t* symbols) {
             (block->matrix + block->number_symbols * i + j)  ->code = malloc(sizeof(uint8_t)*CODE_MAX_SIZE);
         }
     }
-    printf("Code will have %zu bytes\n", CODE_MAX_SIZE);
 }
 void matrix_optimization(Block* block, uint8_t* symbols) {
     start_matrix(block, symbols);
@@ -167,7 +162,7 @@ void matrix_optimization(Block* block, uint8_t* symbols) {
     }
 }
 
-void read_cod_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
+static void read_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
     uint8_t index = 0;
     uint8_t symbols[DICT_SIZE];
     int max_size = 0;
@@ -233,11 +228,11 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
                                 full_seq->size_first_block = size;
                             }
                             full_seq->size_last_block = size;
-                            full_seq->blocks[nblock].block_size = size;
+                            full_seq->blocks[nblock].block_size_before = size;
                             param = SEQUENCE;
                         }
                         else {  // param == sequence
-                            read_cod_block(fp_cod, full_seq, &c, nblock++);
+                            read_block(fp_cod, full_seq, &c, nblock++);
                             param = BLOCK_SIZE;
                         }
                     }
@@ -264,7 +259,7 @@ void destructor(FullSequence* sequence) {
 
 void print_dictionary(FullSequence* full_seq) {
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
-        printf("Bloco: %zu -> Size : %zu\n", i, full_seq->blocks[i].block_size);
+        printf("Bloco: %zu -> Size : %zu\n", i, full_seq->blocks[i].block_size_before);
         printf("Max code is : %zu\n", full_seq->blocks[i].biggest_code_size);
         for (int x = 0; x < DICT_SIZE; x++) {
             if (full_seq->blocks[i].symbol_dictionary[x].sf_code) {
@@ -279,10 +274,22 @@ void print_dictionary(FullSequence* full_seq) {
     }
 }
 
-void print_console(FullSequence* full_seq, char* filename) {
+void print_console(FullSequence* full_seq,double time ,char* filename) {
     printf("Matilde Bravo, a93246, MIEI/CD, 1-jan-2021\n");
     printf("Módulo: c (codificação de um ficheiro de símbolos\n");
     printf("Número de blocos: %zu\n", full_seq->number_blocks);
+    printf("Tempo de execução do módulo (milissegundos): %f\n",time);
+    size_t after_sum = 0;
+    size_t before_sum = 0;
+    for(size_t i = 0; i < full_seq->number_blocks; i++) {
+        size_t before = full_seq->blocks[i].block_size_before;
+        size_t after = full_seq->blocks[i].block_size_after;
+        after_sum += after;
+        before_sum += before;
+        printf("Tamanho antes/depois & taxa de compressão (bloco %zu): %zu/%zu \n",i+1,before,after);
+    }
+    size_t compression = 100 - ((after_sum / (double) before_sum) * 100);
+    printf("Taxa de compressão global: %zu%%\n",compression);
     printf("Ficheiro gerado: %s.shaf\n", filename);
 }
 void print_matrix(FullSequence * full_seq) {
@@ -304,27 +311,25 @@ void print_matrix(FullSequence * full_seq) {
 
 void module_c(char  * symbol_file) {
 
-
+    clock_t start = clock();
     char* cod_file = malloc(strlen(symbol_file) + strlen(".cod") + 1 );
     strcpy(cod_file, symbol_file);
     strcat(cod_file, ".cod");  // codfile = "input.txt.rle.cod"
     FullSequence* my_sequence = calloc(sizeof(FullSequence), 1);
     int x = read_cod(cod_file, my_sequence);
     if (x)  printf("Couldn't open file %s",cod_file);
-    print_dictionary(my_sequence);
-    printf("There are %zu blocks\n",my_sequence->number_blocks);
+    //print_dictionary(my_sequence);
+    //printf("There are %zu blocks\n",my_sequence->number_blocks);
     char * shaf_file = malloc(strlen(symbol_file) + strlen(".shaf") + 1) ;
     strcpy(shaf_file,symbol_file);
     strcat(shaf_file, ".shaf");
-    print_matrix(my_sequence);
+    //print_matrix(my_sequence);
     write_file(my_sequence,shaf_file,symbol_file);
-    printf("There are %zu blocks\n",my_sequence->number_blocks);
-    //FILE * fp_shaf = fopen(shaf_file,"w+b"); // binary is failing
-    //FILE * fp_input = fopen(symbol_file,"r");
-    //write_block(&my_sequence->blocks[0],fp_shaf,fp_input);
-    putchar('\n');
-    print_console(my_sequence,"aaa.txt");
     free(cod_file);
     free(shaf_file);
+    clock_t end = clock();
+    double time = (double) (end - start) / CLOCKS_PER_SEC;
+    print_console(my_sequence,time*1000, symbol_file);
     destructor(my_sequence);
+
 }

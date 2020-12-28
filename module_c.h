@@ -22,7 +22,8 @@ typedef struct piece {
 } Piece;
 
 typedef struct {
-    size_t block_size;
+    size_t block_size_before;
+    size_t block_size_after;
     uint8_t number_symbols;
     size_t biggest_code_size;
     Piece * matrix;
@@ -46,10 +47,9 @@ void make_offset(Block* block, int offset);
 uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE);
 void start_matrix(Block* block, uint8_t* symbols);
 void matrix_optimization(Block* block, uint8_t* symbols);
-void read_cod_block(FILE* fp_cod, FullSequence* full_seq, char* c, int nblock);
 int read_cod(char* cod_file, FullSequence* full_seq);
 void destructor(FullSequence* sequence);
 void print_dictionary(FullSequence* full_seq);
-void print_console(FullSequence* , char* filename);
+void print_console(FullSequence* , double time,char* filename);
 void print_matrix(FullSequence * full_seq);
 void module_c(char  * symbol_file);
