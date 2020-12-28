@@ -418,11 +418,12 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     j = 0;
     /* Write the frequencies up to the symbol 255 */
 
-    /* VER ISTOOOOOO*/
+    /* VER ISTO)OOO */
     /* int count = compression_type == 'N' ? (uint_range - 1) : (uint_range -
      * 2); */
     int count = uint_range - 1;
-    while (j <= (count)) {
+    /* Simbolo 0 ate ao 254 */
+    while (j < (count)) {
       num_freq = aux_Freq->freq[j];
 
       /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
@@ -434,6 +435,16 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
 
       j = j + 1;
     }
+    /* Simbolo 255 */
+    num_freq = aux_Freq->freq[j];
+
+    /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
+    if (last != num_freq)
+      fprintf(fp, "%d", num_freq);
+    else
+      fprintf(fp, ";");
+
+    j = j + 1;
     i = i + 1;
     aux_Freq = aux_Freq->prox;
     aux_Blocks = aux_Blocks->prox;
