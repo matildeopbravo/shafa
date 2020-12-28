@@ -53,7 +53,7 @@ typedef struct freq_block {
 
 /* Struct for symbol data */
 typedef struct symbol {
-  char symbolID;
+  int symbolID;
   int freq;
   char *code;
 } Symbol;
