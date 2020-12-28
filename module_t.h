@@ -7,28 +7,33 @@
 // the appropriate Shannon Fano coding for the provided file name.
 void generatecode (char *freqs_filename);
 
-// initializes the new .cod file and gets the block number.
+// Initializes the new .cod file and gets the block number.
 int initialize_code_file (FILE *input, FILE *output);
 
-// prints the stats
-void printStat(int nblocks, size_t sizeb, double time, char *file)
+// Prints the runtime stats in the terminal.
+void printStat(int nblocks, int *block_sizes, double time, char *file);
 
-//Writes the size of the next block in the frequency file to the code file,
-//including the appending '@' character.
-void write_block_size (FILE *freqs_filename, FILE *code_file);
+// Writes the size of the next block in the frequency file to the code file,
+// including the appending '@' character.
+// int write_block_size (FILE *freqs_filename, FILE *code_file);
 
 // Initializes a table containing the data of the 256 symbols in a block
 void initialize_table (Symbol *symbol_table, int n);
 
-// Reads frequencies to the pointed Symbol Table from the frequencies file.
-void read_block (FILE *freqs_file, Symbol *symbol_table);
+// Reads frequencies to the pointed Symbol Table from the frequencies file and
+// returns the block size.
+int read_block (FILE *freqs_file, Symbol *symbol_table);
 
 // Calculates difference between the frequencies of two pointed symbols
-int compare_freqs (void *a, void *b);
+int compare_freqs (const void *a, const void *b);
 
 // Calculates difference between the numeric values of the ASCII value of
 // two symbols.
-int compare_symbolID (void *a, void*b);
+int compare_symbolID (const void *a, const void *b);
+
+// Returns the number of symbols in the pointed symbol table with non 0
+// frequency
+int get_used_symbols (Symbol *symbol_table);
 
 // Writes Shannon Fano code to the symbols in the pointed symbols table
 // from the index in start to the index in end, not including the last
@@ -46,8 +51,11 @@ int freq_split (Symbol *symbol_table, int start, int end);
 // and a '1' to all symbol codes from p to end, not including end. 
 void append_bits (Symbol *symbol_table, int p, int start, int end);
 
-// Writes one Shannon Fano code block from the code in the symbol_table to the
-// file pointed in code_file, including the final '@' character.
-void write_block_code (FILE * code_file, int block_size, Symbol *symbol_table);
+// Writes one Shannon Fano code block (and its size) from the code in the
+// symbol_table to the file pointed in code_file, including the final '@'
+// character.
+void write_block (FILE * code_file, int block_size, Symbol *symbol_table);
 
+/* DEBUGGING */
+void print_table(Symbol *symbol_table);
 #endif /* MODULOT_H */

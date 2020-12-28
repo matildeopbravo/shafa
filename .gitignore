@@ -56,6 +56,7 @@ dkms.conf
 
 # Example files
 Examples/
+IO/
 
 bbb*
 f
