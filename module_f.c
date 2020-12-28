@@ -202,7 +202,7 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     for (; i < uint_range; i++)
       array[i] = 0;
 
-    /*1 bloco*/
+    /* 1 bloco */
     ByteTupple aux;
     size_t used = tupple_vec_used(vec);
     size_t count, byte;
