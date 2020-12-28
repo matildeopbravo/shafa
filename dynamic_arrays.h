@@ -7,21 +7,21 @@
 #include <stdlib.h>
 
 typedef struct ByteVec {
-  uint8_t *vec;
-  size_t used;
-  size_t size;
+	uint8_t *vec;
+	size_t used;
+	size_t size;
 } ByteVec;
 
 typedef struct ByteTupple {
-  uint8_t byte;
-  uint8_t count;
+	uint8_t byte;
+	uint8_t count;
 } ByteTupple;
 
 typedef struct TuppleVec {
-  ByteTupple *vec;
-  size_t used;
-  size_t n_used;
-  size_t size;
+	ByteTupple *vec;
+	size_t used;
+	size_t n_used;
+	size_t size;
 } TuppleVec;
 
 size_t byte_vec_size(ByteVec const *);

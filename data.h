@@ -2,40 +2,52 @@
 #define DATA_H
 
 #include <stdint.h> /* for uint8_t */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "dynamic_arrays.h"
+
 #define BUFFER_SIZE 1024
 #define uint_range 256
 
-enum compression { NOT_COMPRESSED, COMPRESSED };
+#define k 64000
+#define K 640000
+#define m 8000000
+#define M 64000000
 
+enum compression { NOT_COMPRESSED, COMPRESSED };
 
 /* FILE */
 
-/* Block Values */
-typedef struct node {
-  uint8_t value;
-  struct node *prox;
-} * BlockList;
-
 /* struct for blocks */
 typedef struct block {
-  BlockList blocklist;
+  ByteVec *blocklist;
   struct block *prox;
   unsigned int block_size;
-} * Blocks;
+} Blocks;
+
+/* struct for blocks_compressed */
+typedef struct block_c {
+  TuppleVec *tBList;
+  struct block_c *prox;
+  unsigned int block_size;
+} Blocks_C;
 
 /* struct to put on file on blocks */
 typedef struct block_file {
   enum compression compression_type;
-  Blocks blocks;
+  Blocks *blocks;     // if compression_type == NOT_COMPRESSED -> NULL
+  Blocks_C *blocks_c; // if compression_type == COMPRESSED -> NULL
   unsigned int num_blocks;
-} * BlockFiles;
+} BlockFiles;
 
 /* FREQUENCY */
 /* Struct for the blocks' frequency */
 typedef struct freq_block {
   int freq[uint_range];
+  /* unsigned int block_size; */
   struct freq_block *prox;
-} * FreqBlock;
+} FreqBlock;
 
 /* SHANNON FANO CODING */
 
@@ -47,5 +59,35 @@ typedef struct symbol {
 } Symbol;
 
 char *replace_str(char *str, char *orig, char *rep);
+
+ByteVec *loadArray(FILE *file, size_t block_size);
+
+FreqBlock *initializeFreq(int array[uint_range]);
+
+void free_Freq(FreqBlock *e);
+
+Blocks *initializeBlocks();
+
+void free_Blocks(Blocks *e);
+
+Blocks_C *initializeBlocks_C();
+
+void free_Blocks_C(Blocks_C *e);
+
+BlockFiles *initializeBlockFiles();
+
+void free_Blocks_file(BlockFiles *e);
+
+void addedBlockTOBloc_file(BlockFiles *e, Blocks *block);
+
+void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self);
+
+void arrayToFreqBlock(int array[uint_range], FreqBlock *e);
+
+void print_freq(FreqBlock *freq);
+
+void printByteVec(ByteVec const *self);
+
+void printEqual(TuppleVec const *vec);
 
 #endif /* DATA_H */

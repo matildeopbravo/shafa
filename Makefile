@@ -7,8 +7,8 @@ all: main.o dynamic_arrays.o module_c.o
 run: all
 	./shafa
 
-f: module_f.c module_f.h dynamic_arrays.c dynamic_arrays.h
-	$(CC) $(CFLAGS) module_f.h dynamic_arrays.h dynamic_arrays.c -o $@ $<
+f: module_f.c module_f.h dynamic_arrays.c dynamic_arrays.h data.h data.c
+	$(CC) $(CFLAGS) module_f.h dynamic_arrays.h dynamic_arrays.c data.h data.c -o $@ $<
 
 t: module_t.c
 	$(CC) $(CFLAGS) -o $@ $<
