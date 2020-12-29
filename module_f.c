@@ -156,15 +156,12 @@ FreqBlock *calFreq(BlockFiles const *file) {
     size_t i = 0;
     int array[uint_range];
     size_t used = byte_vec_used(vec);
-
     /* Vamos garantir que o array encontra-se todo a 0. */
     for (; i < uint_range; i++)
       array[i] = 0;
-
     /* 1 bloco */
     for (i = 0; i < used; i++)
       array[byte_vec_index(vec, i)]++;
-
     blocks = blocks->prox;
     num++;
 
@@ -176,11 +173,9 @@ FreqBlock *calFreq(BlockFiles const *file) {
       /* Vamos garantir que o array encontra-se todo a 0. */
       for (i = 0; i < uint_range; i++)
         array[i] = 0;
-
       /* Vamos preencher o array com as frequências de um bloco. */
       for (i = 0; i < byte_vec_used(vec); i++)
         array[byte_vec_index(vec, i)]++;
-
       /* Adicionar as frequencias ao nosso BlockFiles. */
       arrayToFreqBlock(array, freq);
       num++;
@@ -196,11 +191,10 @@ int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]) {
     ByteTupple aux;
     size_t i, used = tupple_vec_used(vec);
     size_t block_size = 0;
+    size_t count, byte;
     /* Vamos garantir que o array encontra-se todo a 0. */
     for (i = 0; i < uint_range; i++)
       array[i] = 0;
-    size_t count, byte;
-
     for (i = 0; i < used; i++) {
       /* Variáveis auxiliares para n estramos sempre a ir à memória. */
       aux = tupple_vec_index(vec, i);
@@ -249,46 +243,8 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     for (; i < uint_range; i++)
       array[i] = 0;
 
-    /* 1 bloco */
-    /* ByteTupple aux; */
-    /* size_t used = tupple_vec_used(vec); */
-    /* size_t count , byte; */
-
-    /* for (i = 0; i < used; i++) { */
-    /*   /\* Variáveis auxiliares para n estramos sempre a ir à memória. *\/ */
-    /*   aux = tupple_vec_index(vec, i); */
-    /*   count = aux.count; */
-    /*   byte = aux.byte; */
-
-    /*   array[byte]++; */
-    /*   block_size++; */
-    /*   /\* Caso em que o nosso símbolo é o 0. *\/ */
-    /*   if (byte == 0) { */
-    /*     array[0]++; */
-    /*     array[count]++; */
-    /*     block_size += 3; */
-    /*   } else { */
-    /*     /\* Caso em que o nosso símbolo ocorre mais do que 3 vezes. *\/ */
-    /*     if (aux.count > 3) { */
-    /*       array[0]++; */
-    /*       array[count]++; */
-    /*       block_size += 2; */
-    /*     } else if (count == 2 || count == 3) { */
-    /*       /\* Caso em que o nosso símbolo ocorre entre 2 ou 3 vezes. *\/ */
-    /*       if (count == 3) { */
-    /*         array[byte] += 2; */
-    /*         block_size += 2; */
-    /*       } else { */
-    /*         block_size++; */
-    /*         array[byte]++; */
-    /*       } */
-    /*     } */
-    /*   } */
-    /* } */
-
     if (sucess != TuppleVec_freq(vec, &block_size, &*array))
       return NULL;
-
     /* Corrige o tamanho do nosso bloco analisado. */
     blocks->block_size = block_size;
     blocks = blocks->prox;
@@ -300,48 +256,8 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     while (num <= num_blocks && blocks) {
       block_size = 0;
       vec = blocks->tBList;
-      /* used = tupple_vec_used(vec); */
-
       if (sucess != TuppleVec_freq(vec, &block_size, &*array))
         return NULL;
-
-      /* /\* Vamos garantir que o array encontra-se todo a 0. *\/ */
-      /* for (i = 0; i < uint_range; i++) */
-      /*   array[i] = 0; */
-
-      /* used = tupple_vec_used(vec); */
-      /* for (i = 0; i < used; i++) { */
-      /*   /\* Variáveis auxiliares para n estramos sempre a ir à memória. *\/
-       */
-      /*   aux = tupple_vec_index(vec, i); */
-      /*   count = aux.count; */
-      /*   byte = aux.byte; */
-
-      /*   array[byte]++; */
-      /*   block_size++; */
-      /*   /\* Caso em que o nosso símbolo é o 0. *\/ */
-      /*   if (byte == 0) { */
-      /*     array[0]++; */
-      /*     array[count]++; */
-      /*     block_size += 3; */
-      /*   } else { */
-      /*     /\* Caso em que o nosso símbolo ocorre mais do que 3 vezes. *\/ */
-      /*     if (aux.count > 3) { */
-      /*       array[0]++; */
-      /*       array[count]++; */
-      /*       block_size += 2; */
-      /*     } else if (count == 2 || count == 3) { */
-      /*       /\* Caso em que o nosso símbolo ocorre entre 2 ou 3 vezes. *\/ */
-      /*       if (count == 3) { */
-      /*         array[byte] += 2; */
-      /*         block_size += 2; */
-      /*       } else { */
-      /*         block_size++; */
-      /*         array[byte]++; */
-      /*       } */
-      /*     } */
-      /*   } */
-      /* } */
 
       /* Adiciona o array das frequencias obtido na estrutura de dados. */
       arrayToFreqBlock(array, freq);
@@ -357,7 +273,6 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
 
 int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
               FreqBlock *freq) {
-
   long long n_blocks;
 
   /* Check if the BlockFile is not empty */
@@ -366,14 +281,12 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     n_blocks = BlockFile->num_blocks;
   else
     return WriteFreq_ERROR_IN_BLOCKFILES;
-
   /* Check if the frequency data is not empty */
   /* Verifica se a estrutura das Frequencias encontra-se vazio */
   if (freq == NULL)
     return WriteFreq_ERROR_IN_FILE;
 
   int i, j, last = -1;
-
   /* Compression_type */
   char compression_type;
   if (BlockFile->compression_type == NOT_COMPRESSED)
@@ -412,39 +325,29 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
       block_size = aux_Blocks->block_size;
     else
       block_size = aux_Blocks_C->block_size;
-
     /* @[tamanho_do_bloco]@ */
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
-
-    /* VER ISTO)OOO */
-    /* int count = compression_type == 'N' ? (uint_range - 1) : (uint_range -
-     * 2); */
-    int count = uint_range - 1;
+    int count = uint_range - 2;
     /* Simbolo 0 ate ao 254 */
     while (j < (count)) {
       num_freq = aux_Freq->freq[j];
-
       /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
       if (last != num_freq) {
         fprintf(fp, "%d;", num_freq);
         last = num_freq;
       } else
         fprintf(fp, ";");
-
       j = j + 1;
     }
     /* Simbolo 255 */
     num_freq = aux_Freq->freq[j];
-
     /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
     if (last != num_freq)
       fprintf(fp, "%d", num_freq);
     else
       fprintf(fp, ";");
-
-    j = j + 1;
     i = i + 1;
     aux_Freq = aux_Freq->prox;
     aux_Blocks = aux_Blocks->prox;
@@ -456,7 +359,6 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   fprintf(fp, "%c0", uint_Arroba);
   if (aux_Freq == NULL && i != n_blocks)
     return WriteFreq_ERROR_IN_FREQ;
-
   fclose(fp);
   return sucess;
 }
@@ -508,14 +410,11 @@ int module_f(char const *filename, size_t const the_block_size,
   /* SEM COMPRESSAO */
   /* Iniciar a nossa estrutura de dados */
   BlockFiles *self = initializeBlockFiles();
-
   size_t n_blocks = 0, size_last_block = 0, block_size = the_block_size;
-
   FILE *fp1 = fopen(filename, "r");
 
   /* Aqui usamos  a função do professor com pequenas alterações. */
   n_blocks = fsize(fp1, filename, &block_size, &size_last_block);
-
   /* Lemos o file por blocos, colocando-o na nossa estrutura de dados */
   int error =
       building_blocks(rfile, self, n_blocks, size_last_block, the_block_size);
@@ -554,7 +453,6 @@ int module_f(char const *filename, size_t const the_block_size,
     wfile_rle = fopen(filename_rle, "w");
     /* Escrever a compressão RLE num determinado ficheiro. */
     write_compressed(wfile_rle, self);
-
     /* Calcular as frequencias dos blocos comprimidos obtidos. */
     FreqBlock *freq_file_rle = calFreq_RLE(self);
 
@@ -578,7 +476,6 @@ int module_f(char const *filename, size_t const the_block_size,
 
   /* Apresentar menu final relativo ao módulo. */
   print_module_f(filename, self, blocks, time);
-
   /* Libertar o espaço alocado. */
   free_Freq(freq_file);
   free_Blocks_file(self);
