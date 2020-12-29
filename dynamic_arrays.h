@@ -12,6 +12,11 @@ typedef struct ByteVec {
 	size_t size;
 } ByteVec;
 
+typedef struct CharVec {
+	char *vec;
+	size_t used;
+	size_t size;
+} CharVec;
 typedef struct ByteTupple {
 	uint8_t byte;
 	uint8_t count;
@@ -31,6 +36,10 @@ size_t byte_vec_used(ByteVec const *);
 uint8_t byte_vec_index(ByteVec const *, size_t);
 
 uint8_t byte_vec_pop(ByteVec *);
+
+CharVec *char_vec_new();
+
+void char_vec_push(CharVec *self, char c);
 
 ByteVec *byte_vec_new();
 

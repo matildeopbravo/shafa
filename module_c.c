@@ -75,16 +75,15 @@ int write_file(
 
 int count_numbers(char* c, FILE* fp_cod) {
     char tmp = *c;
-    char buffer[20];
-    int i = 0;
+    CharVec * buffer = char_vec_new();
     do {
-        buffer[i] = tmp;
-        i++;
+        char_vec_push(buffer,tmp);
+
     } while ((tmp = fgetc(fp_cod)) != '@');
 
-    buffer[i] = '\0';
+    char_vec_push(buffer,'\0');
     *c = tmp;
-    return atoi(buffer);
+    return atoi(buffer->vec);
 }
 
 void shift_piece(Piece* previous, Piece* current, size_t number_symbols) {

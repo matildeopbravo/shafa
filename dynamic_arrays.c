@@ -22,6 +22,22 @@ uint8_t byte_vec_pop(ByteVec *self) {
   	return self->vec[--self->used];
 }
 
+CharVec *char_vec_new() {
+	CharVec *vec = (CharVec *)calloc(1, sizeof(CharVec));
+	vec->size = 0;
+	vec->used = 0;
+	vec->vec = NULL;
+	return vec;
+}
+
+void char_vec_push(CharVec *self, char c) {
+	if (self->used == self->size) {
+		self->size = self->size == 0 ? 1 : self->size * 2;
+		self->vec = realloc(self->vec, self->size * sizeof(char));
+	}
+	self->vec[self->used] = c;
+	self->used++;
+}
 ByteVec *byte_vec_new() {
 	ByteVec *vec = (ByteVec *)calloc(1, sizeof(ByteVec));
 	vec->size = 0;
