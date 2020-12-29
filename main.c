@@ -2,22 +2,17 @@
 //#include "module_t.h"
 #include "module_c.h"
 
-
-
 void call_module(unsigned char module, char * filename, char * options []) {
   if (module == 'f') {
     // chamar a funcao do modulo comas opcoes certas
-
   }
   else if (module == 't') {
     // chamar a funcao do modulo comas opcoes certas
-
   }
   else if (module == 'c') {
     // chamar a funcao do modulo comas opcoes certas
     if(!options) {
         module_c(filename);
-
     }
     else {
       printf("O módulo C não aceita opções.");
@@ -26,7 +21,6 @@ void call_module(unsigned char module, char * filename, char * options []) {
   }
   else if (module == 'd') {
     // chamar a funcao do modulo comas opcoes certas
-
   }
   else {
     printf("Módulo não existe.");

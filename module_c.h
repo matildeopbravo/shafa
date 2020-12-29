@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "dynamic_arrays.h"
 #define uint8_max 255
 #define MAX_BLOCK_SIZE 67108864  // 64MB
 #define MAX_NUMBER_BLOCKS 5      // 2^32
