@@ -75,15 +75,18 @@ int write_file(
 
 int count_numbers(char* c, FILE* fp_cod) {
     char tmp = *c;
-    CharVec * buffer = char_vec_new();
+    CharVec* buffer = char_vec_new();
     do {
-        char_vec_push(buffer,tmp);
+        char_vec_push(buffer, tmp);
 
     } while ((tmp = fgetc(fp_cod)) != '@');
 
-    char_vec_push(buffer,'\0');
+    char_vec_push(buffer, '\0');
     *c = tmp;
-    return atoi(buffer->vec);
+    int n = atoi(buffer->vec);
+    free(buffer->vec);
+    free(buffer);
+    return n;
 }
 
 void shift_piece(Piece* previous, Piece* current, size_t number_symbols) {
@@ -255,7 +258,7 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
     fclose(fp_cod);
     return error;
 }
-void destructor(FullSequence* sequence) {
+void destructor(FullSequence* sequence,char*shaf_file,char*cod_file) {
     for (size_t i = 0; i < sequence->number_blocks; i++) {
         for (size_t j = 0; j < (sequence->blocks[i].number_symbols) * 8; j++) {
             free((sequence->blocks[i].matrix + j)->code);
@@ -266,6 +269,8 @@ void destructor(FullSequence* sequence) {
         }
     }
     free(sequence);
+    free(cod_file);
+    free(shaf_file);
 }
 
 void print_dictionary(FullSequence* full_seq) {
@@ -323,8 +328,8 @@ void print_matrix(FullSequence* full_seq) {
                     j,
                     full_seq->blocks[i].number_symbols);
                 printf(
-                    "%d : Bloco : %zu , offset: %d, symbol: %d, next: %zu * %d "
-                    " ",
+                    "%d : Bloco : %zu , offset: %d, symbol: %d, next: %zu * "
+                    "%d ",
                     z,
                     i,
                     offset,
@@ -340,24 +345,22 @@ void print_matrix(FullSequence* full_seq) {
     }
 }
 
+char * get_filename(char*symbol_file,char * extension) {
+    char* cod_file = malloc(strlen(symbol_file) + strlen(extension) + 1);
+    strcpy(cod_file, symbol_file);
+    strcat(cod_file, extension);
+    return cod_file;
+}
+
 void module_c(char* symbol_file) {
 
+    char * shaf_file = get_filename(symbol_file,".shaf");
+    char * cod_file = get_filename(symbol_file,".cod");
     clock_t start = clock();
-
-    char* cod_file = malloc(strlen(symbol_file) + strlen(".cod") + 1);
-    strcpy(cod_file, symbol_file);
-    strcat(cod_file, ".cod");
     FullSequence* my_sequence = calloc(sizeof(FullSequence), 1);
     int x = read_cod(cod_file, my_sequence);
     if (x) printf("Couldn't open file %s", cod_file);
-    char* shaf_file = malloc(strlen(symbol_file) + strlen(".shaf") + 1);
-    strcpy(shaf_file, symbol_file);
-    strcat(shaf_file, ".shaf");
     write_file(my_sequence, shaf_file, symbol_file);
-    free(cod_file);
-    free(shaf_file);
-    clock_t end = clock();
-    double time = (double) (end - start) / CLOCKS_PER_SEC;
-    print_console(my_sequence, time * 1000, symbol_file);
-    destructor(my_sequence);
+    print_console(my_sequence, ((double) (clock() - start) / CLOCKS_PER_SEC) * 1000, symbol_file);
+    destructor(my_sequence,cod_file,shaf_file);
 }

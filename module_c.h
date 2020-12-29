@@ -49,7 +49,7 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE);
 void start_matrix(Block* block, uint8_t* symbols);
 void matrix_optimization(Block* block, uint8_t* symbols);
 int read_cod(char* cod_file, FullSequence* full_seq);
-void destructor(FullSequence* sequence);
+void destructor(FullSequence* sequence,char*,char*);
 void print_dictionary(FullSequence* full_seq);
 void print_console(FullSequence* , double time,char* filename);
 void print_matrix(FullSequence * full_seq);
