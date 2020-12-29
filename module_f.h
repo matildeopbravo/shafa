@@ -94,6 +94,13 @@ long double calcCompress_blocks(BlockFiles const *self);
 FreqBlock *calFreq(BlockFiles const *file);
 
 /**
+ \brief Recebe um TuppleVec e calcula a frequencias dos simbolos
+ \param *block_size_ No final da função aoresenta o tamanho real do bloco.
+ \return 1 em caso de sucesso
+ */
+int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]);
+
+/**
  \brief Recebe um determinado BlockFiles e retorna as frequências de cada bloco.
  \param *file Blockfiles Comprimido.
  \return FreqBlock

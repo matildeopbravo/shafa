@@ -191,20 +191,14 @@ FreqBlock *calFreq(BlockFiles const *file) {
     return NULL;
 }
 
-FreqBlock *calFreq_RLE(BlockFiles *file) {
-  if (file) {
-    Blocks_C *blocks = file->blocks_c;
-    int num_blocks = file->num_blocks, num = 0;
-    TuppleVec *vec = file->blocks_c->tBList;
-    size_t i = 0, block_size = 0;
-    int array[uint_range];
-    /* Vamos garantir que o array encontra-se todo a 0. */
-    for (; i < uint_range; i++)
-      array[i] = 0;
-
-    /*1 bloco*/
+int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]) {
+  if (vec) {
     ByteTupple aux;
-    size_t used = tupple_vec_used(vec);
+    size_t i, used = tupple_vec_used(vec);
+    size_t block_size = 0;
+    /* Vamos garantir que o array encontra-se todo a 0. */
+    for (i = 0; i < uint_range; i++)
+      array[i] = 0;
     size_t count, byte;
 
     for (i = 0; i < used; i++) {
@@ -238,6 +232,63 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
         }
       }
     }
+    *block_size_ = block_size;
+    return sucess;
+  } else
+    return Module_f_ERROR_IN_FREQ;
+}
+
+FreqBlock *calFreq_RLE(BlockFiles *file) {
+  if (file) {
+    Blocks_C *blocks = file->blocks_c;
+    int num_blocks = file->num_blocks, num = 0;
+    TuppleVec *vec = file->blocks_c->tBList;
+    size_t i = 0, block_size = 0;
+    int array[uint_range];
+    /* Vamos garantir que o array encontra-se todo a 0. */
+    for (; i < uint_range; i++)
+      array[i] = 0;
+
+    /* 1 bloco */
+    /* ByteTupple aux; */
+    /* size_t used = tupple_vec_used(vec); */
+    /* size_t count , byte; */
+
+    /* for (i = 0; i < used; i++) { */
+    /*   /\* Variáveis auxiliares para n estramos sempre a ir à memória. *\/ */
+    /*   aux = tupple_vec_index(vec, i); */
+    /*   count = aux.count; */
+    /*   byte = aux.byte; */
+
+    /*   array[byte]++; */
+    /*   block_size++; */
+    /*   /\* Caso em que o nosso símbolo é o 0. *\/ */
+    /*   if (byte == 0) { */
+    /*     array[0]++; */
+    /*     array[count]++; */
+    /*     block_size += 3; */
+    /*   } else { */
+    /*     /\* Caso em que o nosso símbolo ocorre mais do que 3 vezes. *\/ */
+    /*     if (aux.count > 3) { */
+    /*       array[0]++; */
+    /*       array[count]++; */
+    /*       block_size += 2; */
+    /*     } else if (count == 2 || count == 3) { */
+    /*       /\* Caso em que o nosso símbolo ocorre entre 2 ou 3 vezes. *\/ */
+    /*       if (count == 3) { */
+    /*         array[byte] += 2; */
+    /*         block_size += 2; */
+    /*       } else { */
+    /*         block_size++; */
+    /*         array[byte]++; */
+    /*       } */
+    /*     } */
+    /*   } */
+    /* } */
+
+    if (sucess != TuppleVec_freq(vec, &block_size, &*array))
+      return NULL;
+
     /* Corrige o tamanho do nosso bloco analisado. */
     blocks->block_size = block_size;
     blocks = blocks->prox;
@@ -249,44 +300,49 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     while (num <= num_blocks && blocks) {
       block_size = 0;
       vec = blocks->tBList;
-      used = tupple_vec_used(vec);
+      /* used = tupple_vec_used(vec); */
 
-      /* Vamos garantir que o array encontra-se todo a 0. */
-      for (i = 0; i < uint_range; i++)
-        array[i] = 0;
+      if (sucess != TuppleVec_freq(vec, &block_size, &*array))
+        return NULL;
 
-      used = tupple_vec_used(vec);
-      for (i = 0; i < used; i++) {
-        /* Variáveis auxiliares para n estramos sempre a ir à memória. */
-        aux = tupple_vec_index(vec, i);
-        count = aux.count;
-        byte = aux.byte;
+      /* /\* Vamos garantir que o array encontra-se todo a 0. *\/ */
+      /* for (i = 0; i < uint_range; i++) */
+      /*   array[i] = 0; */
 
-        array[byte]++;
-        block_size++;
-        /* Caso em que o nosso símbolo é o 0. */
-        if (byte == 0) {
-          array[0]++;
-          array[count]++;
-          block_size += 3;
-        } else {
-          /* Caso em que o nosso símbolo ocorre mais do que 3 vezes. */
-          if (aux.count > 3) {
-            array[0]++;
-            array[count]++;
-            block_size += 2;
-          } else if (count == 2 || count == 3) {
-            /* Caso em que o nosso símbolo ocorre entre 2 ou 3 vezes. */
-            if (count == 3) {
-              array[byte] += 2;
-              block_size += 2;
-            } else {
-              block_size++;
-              array[byte]++;
-            }
-          }
-        }
-      }
+      /* used = tupple_vec_used(vec); */
+      /* for (i = 0; i < used; i++) { */
+      /*   /\* Variáveis auxiliares para n estramos sempre a ir à memória. *\/
+       */
+      /*   aux = tupple_vec_index(vec, i); */
+      /*   count = aux.count; */
+      /*   byte = aux.byte; */
+
+      /*   array[byte]++; */
+      /*   block_size++; */
+      /*   /\* Caso em que o nosso símbolo é o 0. *\/ */
+      /*   if (byte == 0) { */
+      /*     array[0]++; */
+      /*     array[count]++; */
+      /*     block_size += 3; */
+      /*   } else { */
+      /*     /\* Caso em que o nosso símbolo ocorre mais do que 3 vezes. *\/ */
+      /*     if (aux.count > 3) { */
+      /*       array[0]++; */
+      /*       array[count]++; */
+      /*       block_size += 2; */
+      /*     } else if (count == 2 || count == 3) { */
+      /*       /\* Caso em que o nosso símbolo ocorre entre 2 ou 3 vezes. *\/ */
+      /*       if (count == 3) { */
+      /*         array[byte] += 2; */
+      /*         block_size += 2; */
+      /*       } else { */
+      /*         block_size++; */
+      /*         array[byte]++; */
+      /*       } */
+      /*     } */
+      /*   } */
+      /* } */
+
       /* Adiciona o array das frequencias obtido na estrutura de dados. */
       arrayToFreqBlock(array, freq);
       num++;
@@ -362,11 +418,12 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     j = 0;
     /* Write the frequencies up to the symbol 255 */
 
-    /* VER ISTOOOOOO*/
+    /* VER ISTO)OOO */
     /* int count = compression_type == 'N' ? (uint_range - 1) : (uint_range -
      * 2); */
     int count = uint_range - 1;
-    while (j <= (count)) {
+    /* Simbolo 0 ate ao 254 */
+    while (j < (count)) {
       num_freq = aux_Freq->freq[j];
 
       /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
@@ -378,6 +435,16 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
 
       j = j + 1;
     }
+    /* Simbolo 255 */
+    num_freq = aux_Freq->freq[j];
+
+    /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
+    if (last != num_freq)
+      fprintf(fp, "%d", num_freq);
+    else
+      fprintf(fp, ";");
+
+    j = j + 1;
     i = i + 1;
     aux_Freq = aux_Freq->prox;
     aux_Blocks = aux_Blocks->prox;
@@ -521,9 +588,9 @@ int module_f(char const *filename, size_t const the_block_size,
 /* Apagar no final */
 int main() {
   /* chama module f */
-  int arroz = module_f("out.txt", 2048, 0);
+  /* int arroz = module_f("out.txt", 2048, 0); */
   int ola = module_f("ola.txt", 2048, 0);
-  if (arroz != 1 || ola != 1) {
+  if (/* arroz != 1 || */ ola != 1) {
     printf("algo deu mal\n");
   }
   return sucess;
