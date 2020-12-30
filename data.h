@@ -17,6 +17,7 @@
 #define k 64000
 #define K 640000
 #define m 8000000
+
 #define M 64000000
 
 enum compression { NOT_COMPRESSED, COMPRESSED };

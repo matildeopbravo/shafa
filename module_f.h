@@ -129,4 +129,20 @@ void print_module_f(const char *filename, BlockFiles const *self,
  */
 int module_f(char const *filename, size_t const the_block_size, int FORCE_FLAG);
 
+/**
+ \brief Avisa que argumentos dados não são válidos.
+ */
+void argumentos_invalidos();
+
+/**
+ \brief Função que converte o char recebido para o tamanho correto do bloco.
+ */
+size_t convert_block_size(char letter);
+
+/**
+  \brief Função que analisa os argumentos dados e chama o módule f.
+  \return 1 em caso de sucesso
+ */
+int call_module_f(char *filename, char *options[]);
+
 #endif // __MODULE_F_H_

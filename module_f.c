@@ -329,7 +329,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
-    int count = uint_range - 2;
+    int count = uint_range - 1;
     /* Simbolo 0 ate ao 254 */
     while (j < (count)) {
       num_freq = aux_Freq->freq[j];
@@ -482,13 +482,85 @@ int module_f(char const *filename, size_t const the_block_size,
   return sucess;
 }
 
-/* Apagar no final */
-int main() {
-  /* chama module f */
-  /* int arroz = module_f("out.txt", 2048, 0); */
-  int ola = module_f("ola.txt", 2048, 0);
-  if (/* arroz != 1 || */ ola != 1) {
-    printf("algo deu mal\n");
-  }
-  return sucess;
+void argumentos_invalidos() {
+  printf("\nDados inválidos:\n");
+  printf("shafa file -m f -b (k|K|m|M) -c r\n");
 }
+
+size_t convert_block_size(char letter) {
+  size_t block_size = M;
+  switch (letter) {
+  case 'k':
+    block_size = k;
+    break;
+  case 'K':
+    block_size = K;
+    break;
+  case 'm':
+    block_size = m;
+    break;
+  case 'M':
+    block_size = M;
+    break;
+  default:
+    argumentos_invalidos();
+    printf("O(s) tamanho(s) do(s) bloco(s) analisado(s) serão de %d\n\n", M);
+    break;
+  }
+  return block_size;
+}
+
+int call_module_f(char *filename, char *options[]) {
+  int result = 0;
+  size_t block_size = k;
+  int FORCE_FLAG = 0;
+
+  if (options && options[0][1] && options[1]) {
+    switch (options[0][1]) {
+    case 'b':
+      block_size = convert_block_size(options[1][0]);
+
+      if (options[2] && options[3]) {
+        if (options[2][1] == 'c' && options[3][0] == 'r')
+          FORCE_FLAG = 1;
+        else
+          argumentos_invalidos();
+      }
+      break;
+
+    case 'c':
+      if (options[1][0] == 'r') {
+        FORCE_FLAG = 1;
+        if (options[2] && options[2][1] == 'b' && options[3]) {
+          block_size = convert_block_size(options[3][0]);
+        } else
+          argumentos_invalidos();
+      } else
+        argumentos_invalidos();
+
+      break;
+
+    default:
+      argumentos_invalidos();
+      break;
+    }
+  }
+  result = module_f(filename, block_size, FORCE_FLAG);
+  return result;
+}
+
+/* Apagar no final */
+/* int main() { */
+/*   /\* chama module f *\/ */
+/*   /\* int arroz = module_f("out.txt", 2048, 0); *\/ */
+/*   /\* int ola = module_f("oaaa.txt", 2048, 0); *\/ */
+/*   int adeus = module_f("obbb.zip", 8388608, 0); */
+/*   /\* int adeus = module_f("obbb.zip", m, 0); *\/ */
+/*   /\* int ate_logo = module_f("occc.txt", 655360, 0); *\/ */
+/*   /\* if (/\\* arroz != 1 || *\\/ ola != 1) { *\/ */
+/*   /\* printf("algo deu mal\n"); *\/ */
+/*   /\* } *\/ */
+/*   /\* printf("%d \n", ate_logo); *\/ */
+
+/*   return sucess; */
+/* } */
