@@ -13,7 +13,6 @@
 
 #define BUFFER_SIZE 1024
 #define uint_range 256
-
 #define k 64000
 #define K 640000
 #define m 8000000

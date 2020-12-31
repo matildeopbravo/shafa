@@ -329,7 +329,8 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
-    int count = uint_range - 1;
+    /* int count = uint_range - 1; */
+    int count = uint_range - 2;
     /* Simbolo 0 ate ao 254 */
     while (j < (count)) {
       num_freq = aux_Freq->freq[j];
@@ -385,8 +386,9 @@ void print_module_f(const char *filename, BlockFiles const *self,
   fprintf(stdout, "Tempo de execução do módulo (milissegundos): %f\n", time);
   fprintf(stdout, "Ficheiros gerados: %s.freq", filename);
   if (compression_type == COMPRESSED)
-    fprintf(stdout, ", %s.rle, %s.rle.freq\n", filename, filename);
-  fprintf(stdout, "\n");
+    fprintf(stdout, ", %s.rle, %s.rle.freq\n\n", filename, filename);
+  else
+    fprintf(stdout, "\n\n");
 }
 
 int module_f(char const *filename, size_t const the_block_size,
@@ -442,7 +444,12 @@ int module_f(char const *filename, size_t const the_block_size,
 
   /* RLE */
   x1 = compress_blocks(self, FORCE_FLAG);
-  if (!x1 && !FORCE_FLAG) {
+  if (!x1 && FORCE_FLAG) {
+    /* End time */
+    Ticks[1] = clock();
+    /* Calcular o tempo de execução do MODULE_F. */
+    double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+    print_module_f(filename, self, 0, time);
     return Module_f_ERROR_IN_COMPRESSION;
   }
 
@@ -510,6 +517,23 @@ size_t convert_block_size(char letter) {
   return block_size;
 }
 
+void verificar_erro(int error) {
+  switch (error) {
+  case (-1):
+    printf("Verifique se o ficheiro dado encontra-se correto\n");
+    break;
+  case (-2):
+    printf("Erro ao escrever/ler as frequencias do ficheiro\n");
+    break;
+  case (-3):
+    printf("Erro ao escrever/ler os blocos do ficheiro\n");
+    break;
+  case (-4):
+    printf("Erro a comprimir o ficheiro\n");
+    break;
+  }
+}
+
 int call_module_f(char *filename, char *options[]) {
   int result = 0;
   size_t block_size = k;
@@ -531,10 +555,12 @@ int call_module_f(char *filename, char *options[]) {
     case 'c':
       if (options[1][0] == 'r') {
         FORCE_FLAG = 1;
-        if (options[2] && options[2][1] == 'b' && options[3]) {
-          block_size = convert_block_size(options[3][0]);
-        } else
-          argumentos_invalidos();
+        if (options[2]) {
+          if (options[2][1] == 'b' && options[3]) {
+            block_size = convert_block_size(options[3][0]);
+          } else
+            argumentos_invalidos();
+        }
       } else
         argumentos_invalidos();
 
@@ -545,22 +571,15 @@ int call_module_f(char *filename, char *options[]) {
       break;
     }
   }
+  block_size = 655360;
+  /* block_size = 2048; */
+  /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
+  verificar_erro(result);
   return result;
 }
 
 /* Apagar no final */
-/* int main() { */
-/*   /\* chama module f *\/ */
-/*   /\* int arroz = module_f("out.txt", 2048, 0); *\/ */
 /*   /\* int ola = module_f("oaaa.txt", 2048, 0); *\/ */
 /*   int adeus = module_f("obbb.zip", 8388608, 0); */
-/*   /\* int adeus = module_f("obbb.zip", m, 0); *\/ */
 /*   /\* int ate_logo = module_f("occc.txt", 655360, 0); *\/ */
-/*   /\* if (/\\* arroz != 1 || *\\/ ola != 1) { *\/ */
-/*   /\* printf("algo deu mal\n"); *\/ */
-/*   /\* } *\/ */
-/*   /\* printf("%d \n", ate_logo); *\/ */
-
-/*   return sucess; */
-/* } */

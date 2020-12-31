@@ -21,7 +21,6 @@
 #define uint_Arroba 64
 #define uint_PontoVirgula 59
 #define uint_percentagem 37
-#define uint_range 256
 
 #define sucess 1
 /* Errors related to function WriteFreq */

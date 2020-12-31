@@ -63,8 +63,10 @@ void free_Blocks(Blocks *e) {
   while (e) {
     aux = e;
     aux_vec = e->blocklist;
-    e->blocklist = NULL;
     byte_vec_del(aux_vec);
+    /* se der bug é por causa deste free */
+    free(aux_vec);
+    e->blocklist = NULL;
     e = e->prox;
     free(aux);
   }
@@ -84,8 +86,10 @@ void free_Blocks_C(Blocks_C *e) {
   while (e) {
     aux = e;
     aux_vec = e->tBList;
-    e->tBList = NULL;
     tupple_vec_del(aux_vec);
+    /* se der bug é por causa deste free */
+    free(e->tBList);
+    e->tBList = NULL;
     e = e->prox;
     free(aux);
   }
