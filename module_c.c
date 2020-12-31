@@ -13,7 +13,7 @@ Piece* get_piece(
     Piece* matrix,
     uint8_t offset,
     uint8_t symbol_index,
-    uint8_t number_symbols) {
+    uint16_t number_symbols) {
     return matrix + number_symbols * offset + symbol_index;
 }
 
@@ -23,7 +23,8 @@ int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     int end = 1;
     Piece* piece = get_piece(block->matrix, 0, 0, block->number_symbols);
     for (size_t symbol = 0; symbol < block->block_size_before; symbol++) {
-        uint8_t index = block->symbol_dictionary[fgetc(fp_input)].index;
+        int c = fgetc(fp_input);
+        uint8_t index = block->symbol_dictionary[c].index;
         piece += index;
         for (size_t i = 0; i <= piece->byte_index; i++) {
             if (piece->next == 0 && piece->byte_index == i) {
@@ -35,7 +36,7 @@ int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
                 }
                 else {
                     vec->vec[byte_vec_used(vec) - 1] += piece->code[i];
-                    end = i < (piece->byte_index );
+                    end = i < (piece->byte_index);
                 }
             }
         }
@@ -86,7 +87,7 @@ int count_numbers(char* c, FILE* fp_cod) {
     return n;
 }
 
-void shift_piece(Piece* previous, Piece* current, size_t number_symbols) {
+void shift_piece(Piece* previous, Piece* current, uint16_t number_symbols) {
     for (size_t i = previous->byte_index;; i--) {
         current->code[i] = (previous->code[i] >> 1);
         if (i == 0) break;
@@ -103,9 +104,9 @@ void make_offset(Block* block, int offset) {
     Piece* pieces_current = block->matrix + block->number_symbols * offset;
     Piece* pieces_previous =
         block->matrix + block->number_symbols * (offset - 1);
-    size_t number_symbols = block->number_symbols;
+    uint16_t number_symbols = block->number_symbols;
 
-    for (int i = 0; i < block->number_symbols; i++) {
+    for (uint16_t i = 0; i < block->number_symbols; i++) {
         shift_piece(pieces_previous + i, pieces_current + i, number_symbols);
     }
 }
@@ -140,7 +141,7 @@ uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
 }
 
 void start_matrix(Block* block, uint8_t* symbols) {
-    Piece* matrix = malloc(sizeof(Piece) * block->number_symbols * 8);
+    Piece* matrix = calloc(sizeof(Piece), block->number_symbols * 8);
     block->matrix = matrix;
     // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
     size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
@@ -159,7 +160,7 @@ void start_matrix(Block* block, uint8_t* symbols) {
     for (uint8_t i = 1; i < 8; i++) {
         for (int j = 0; j < block->number_symbols; j++) {
             (block->matrix + block->number_symbols * i + j)->code =
-                malloc(sizeof(uint8_t) * CODE_MAX_SIZE);
+                calloc(sizeof(uint8_t),  CODE_MAX_SIZE);
         }
     }
 }
@@ -172,7 +173,7 @@ void matrix_optimization(Block* block, uint8_t* symbols) {
 
 static void read_block(
     FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
-    uint8_t index = 0;
+    uint16_t index = 0;
     uint8_t symbols[DICT_SIZE];
     int max_size = 0;
     SFTuple tuple;

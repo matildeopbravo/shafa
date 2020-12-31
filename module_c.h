@@ -25,7 +25,7 @@ typedef struct piece {
 typedef struct {
     size_t block_size_before;
     size_t block_size_after;
-    uint8_t number_symbols;
+    uint16_t number_symbols;
     size_t biggest_code_size;
     Piece * matrix;
     SFTuple symbol_dictionary[DICT_SIZE];
@@ -43,7 +43,7 @@ typedef struct sequence {
 int write_block (Block * block, FILE * fp_shaf, FILE * fp_input);
 int write_file (FullSequence * full_seq, char const * shaf_file, char const * input_file);
 int count_numbers(char* c, FILE* fp_cod);
-void shift_piece(Piece* previous, Piece* current, size_t number_symbols);
+void shift_piece(Piece* previous, Piece* current, uint16_t number_symbols);
 void make_offset(Block* block, int offset);
 uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE);
 void start_matrix(Block* block, uint8_t* symbols);
