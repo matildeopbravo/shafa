@@ -3,11 +3,10 @@
 #include <stdlib.h>
 #include "dynamic_arrays.h"
 #define uint8_max 255
-#define MAX_BLOCK_SIZE 67108864  // 64MB
 #define MAX_NUMBER_BLOCKS 100      // 2^32
 #define DICT_SIZE 256
 
-enum parameters { START, BLOCK_SIZE, SEQUENCE };
+enum parameters { START,BLOCK_SIZE, SEQUENCE };
 enum rle_compression { NOT_RLE_COMPRESSED = 'N', RLE_COMPRESSED = 'R' };
 
 typedef struct {

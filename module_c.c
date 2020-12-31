@@ -147,7 +147,7 @@ void start_matrix(Block* block, uint8_t* symbols) {
     size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
 
     // creates offset 0
-    for (uint8_t i = 0; i < block->number_symbols; i++) {
+    for (uint16_t i = 0; i < block->number_symbols; i++) {
         SFTuple tuple =
             block->symbol_dictionary[symbols[i]];  // symbols has value of
                                                    // existing symbols
@@ -158,7 +158,7 @@ void start_matrix(Block* block, uint8_t* symbols) {
             .byte_index = size / 8};
     }
     for (uint8_t i = 1; i < 8; i++) {
-        for (int j = 0; j < block->number_symbols; j++) {
+        for (uint16_t j = 0; j < block->number_symbols; j++) {
             (block->matrix + block->number_symbols * i + j)->code =
                 calloc(sizeof(uint8_t),  CODE_MAX_SIZE);
         }
@@ -172,7 +172,7 @@ void matrix_optimization(Block* block, uint8_t* symbols) {
 }
 
 static void read_block(
-    FILE* fp_cod, FullSequence* full_seq, char* c, int nblock) {
+    FILE* fp_cod, FullSequence* full_seq, char* c, size_t nblock) {
     uint16_t index = 0;
     uint8_t symbols[DICT_SIZE];
     int max_size = 0;
@@ -180,7 +180,7 @@ static void read_block(
 
     for (uint8_t ascii = 0; *c != '@';) {
         if (*c != ';') {
-            char* sequence = malloc(sizeof(char) * 100000);
+            char* sequence = malloc(sizeof(char) * 15);
             int x = 0;
             for (; *c != ';' && *c != '@'; x++) {
                 sequence[x] = *c;
@@ -205,8 +205,7 @@ static void read_block(
 }
 
 int read_cod(char* cod_file, FullSequence* full_seq) {
-    enum parameters param = START;
-    int nblock = 0, not_finished = 1;
+    size_t nblock = 0;
     size_t size = 0;
     int error = 0;
 
@@ -214,45 +213,34 @@ int read_cod(char* cod_file, FullSequence* full_seq) {
     if (!fp_cod) return 1;
     char c = fgetc(fp_cod);
 
-    for (int i = 0; not_finished && !error; i++) {
+    full_seq->compression_type = fgetc(fp_cod);
+    fgetc(fp_cod);
+    c = fgetc(fp_cod);
+    full_seq->number_blocks = count_numbers(&c, fp_cod);
+    enum parameters param = BLOCK_SIZE;
+
+    for (size_t i = 0; nblock < full_seq->number_blocks && !error; i++) {
         if (c == '@') {
-            switch (i) {
-                case 0:
-                    full_seq->compression_type = fgetc(fp_cod);
-                    c = fgetc(fp_cod);
-                    break;
-                case 1:
-                    c = fgetc(fp_cod);
-                    full_seq->number_blocks = count_numbers(&c, fp_cod);
-                    param = BLOCK_SIZE;
-                    break;
-                default:
-                    c = fgetc(fp_cod);
-                    not_finished = c - '0';
-                    if (not_finished) {
-                        if (param == BLOCK_SIZE) {
-                            size = count_numbers(
-                                &c,
-                                fp_cod);  // o c já tem o primeiro digito
-                            if (i == 2) {
-                                full_seq->size_first_block = size;
-                            }
-                            full_seq->size_last_block = size;
-                            full_seq->blocks[nblock].block_size_before = size;
-                            param = SEQUENCE;
+                c = fgetc(fp_cod);
+                if (param == BLOCK_SIZE) {
+                        size = count_numbers( &c, fp_cod);  // o c já tem o primeiro digito
+                        if (i == 0) {
+                            full_seq->size_first_block = size;
                         }
-                        else {  // param == sequence
-                            read_block(fp_cod, full_seq, &c, nblock++);
-                            param = BLOCK_SIZE;
-                        }
+                        full_seq->size_last_block = size;
+                        full_seq->blocks[nblock].block_size_before = size;
+                        param = SEQUENCE;
                     }
-                    break;
-            }
+                 else {  // param == sequence
+                      read_block(fp_cod, full_seq, &c, nblock++);
+                      param = BLOCK_SIZE;
+                 }
         }
         else {
             error = 1;
         }
     }
+    print_dictionary(full_seq);
     fclose(fp_cod);
     return error;
 }
