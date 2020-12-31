@@ -7,7 +7,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "data.h"
 #include "dynamic_arrays.h"
 
 Piece* get_piece(
@@ -23,7 +22,6 @@ int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     int error = 0;
     int end = 1;
     Piece* piece = get_piece(block->matrix, 0, 0, block->number_symbols);
-
     for (size_t symbol = 0; symbol < block->block_size_before; symbol++) {
         uint8_t index = block->symbol_dictionary[fgetc(fp_input)].index;
         piece += index;
@@ -37,7 +35,7 @@ int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
                 }
                 else {
                     vec->vec[byte_vec_used(vec) - 1] += piece->code[i];
-                    end = i == (piece->byte_index - 1);
+                    end = i < (piece->byte_index );
                 }
             }
         }
@@ -46,7 +44,6 @@ int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     }
     block->block_size_after = byte_vec_used(vec);
     fprintf(fp_shaf, "@%zu@", byte_vec_used(vec));
-
     for (size_t i = 0; i < byte_vec_used(vec); i++) {
         fputc(byte_vec_index(vec, i), fp_shaf);
     }
@@ -182,9 +179,9 @@ static void read_block(
 
     for (uint8_t ascii = 0; *c != '@';) {
         if (*c != ';') {
-            char* sequence = malloc(sizeof(char) * 10);
+            char* sequence = malloc(sizeof(char) * 100000);
             int x = 0;
-            for (; *c != ';'; x++) {
+            for (; *c != ';' && *c != '@'; x++) {
                 sequence[x] = *c;
                 *c = fgetc(fp_cod);
             }
