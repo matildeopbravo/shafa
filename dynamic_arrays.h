@@ -37,7 +37,7 @@ uint8_t byte_vec_index(ByteVec const *, size_t);
 
 uint8_t byte_vec_pop(ByteVec *);
 
-CharVec *char_vec_new();
+CharVec char_vec_new();
 
 void char_vec_push(CharVec *self, char c);
 

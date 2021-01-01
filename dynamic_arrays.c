@@ -17,13 +17,8 @@ uint8_t byte_vec_pop(ByteVec *self) {
   assert(self->used > 0);
   return self->vec[--self->used];
 }
-
-CharVec *char_vec_new() {
-  CharVec *vec = (CharVec *)calloc(1, sizeof(CharVec));
-  vec->size = 0;
-  vec->used = 0;
-  vec->vec = NULL;
-  return vec;
+CharVec char_vec_new() {
+  return (CharVec) {.vec = NULL, .size = 0, .used = 0};
 }
 
 void char_vec_push(CharVec *self, char c) {
