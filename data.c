@@ -66,7 +66,7 @@ void free_Blocks(Blocks *e) {
     aux_vec = e->blocklist;
     byte_vec_del(aux_vec);
     /* se der bug é por causa deste free */
-    free(aux_vec);
+    /* free(aux_vec); */
     e->blocklist = NULL;
     e = e->prox;
     free(aux);

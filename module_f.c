@@ -462,11 +462,11 @@ int module_f(char const *filename, size_t const the_block_size,
     /* Calcular as frequencias dos blocos comprimidos obtidos. */
     FreqBlock *freq_file_rle = calFreq_RLE(self);
 
-    char *filename_rle_freq = filename_rle;
+    /* char *filename_rle_freq = filename_rle; */
     strcat(filename_rle, ".freq");
     wfile_rle = fopen(filename_rle, "w");
     /* Imprimir as frequências obtidas dos blocos. */
-    error = writeFreq(wfile, filename_rle_freq, self, freq_file_rle);
+    error = writeFreq(wfile, filename_rle, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
     else
@@ -570,8 +570,8 @@ int call_module_f(char *filename, char *options[]) {
       break;
     }
   }
-  block_size = 655360;
-  /* block_size = 2048; */
+  /* block_size = 655360; */
+  block_size = 2048;
   /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
   verificar_erro(result);
