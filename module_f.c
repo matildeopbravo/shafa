@@ -36,7 +36,7 @@ TuppleVec *compress(ByteVec const *self) {
   TuppleVec *t = tupple_vec_new();
   size_t i = 1, count = 1, used = self->used;
   uint8_t last = byte_vec_index(self, 0), las2 = 0;
-  while (i < used && count < 255) {
+  while (i < used && count < (uint_range - 1)) {
     if (last == self->vec[i]) {
       count++;
       last = byte_vec_index(self, i);
@@ -120,18 +120,17 @@ int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
 
 int compress_blocks(BlockFiles *self, int FORCE_FLAG) {
   Blocks *list = initializeBlocks();
+  /* Blocks *list; */
   if (checkSum(self->blocks->blocklist) == 0 && !FORCE_FLAG) {
     return 0;
   }
   list = self->blocks;
-  int i = 1;
   while (list) {
     Blocks_C *a = initializeBlocks_C();
     a->tBList = compress(list->blocklist);
     a->block_size = list->block_size;
     addedBlock_CTOBloc_file(self, a);
     list = list->prox;
-    i++;
   }
   self->compression_type = COMPRESSED;
   return 1;

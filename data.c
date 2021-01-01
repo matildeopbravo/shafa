@@ -44,8 +44,9 @@ void free_Freq(FreqBlock *e) {
   FreqBlock *aux;
   while (e) {
     aux = e;
-    e = e->prox;
+    /* free(aux->freq); */
     free(aux);
+    e = e->prox;
   }
 }
 
@@ -105,8 +106,10 @@ BlockFiles *initializeBlockFiles() {
 }
 
 void free_Blocks_file(BlockFiles *e) {
-  free_Blocks(e->blocks);
-  free_Blocks_C(e->blocks_c);
+  if (e->blocks)
+    free_Blocks(e->blocks);
+  if (e->blocks_c)
+    free_Blocks_C(e->blocks_c);
   free(e);
   e = NULL;
 }
