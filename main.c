@@ -1,5 +1,5 @@
 #include "module_f.h"
-//#include "module_t.h"
+#include "module_t.h"
 #include "module_c.h"
 
 void call_module(unsigned char module, char *filename, char *options[]) {
@@ -9,7 +9,11 @@ void call_module(unsigned char module, char *filename, char *options[]) {
       printf("Dados inválidos\n");
 
   } else if (module == 't') {
-    // chamar a funcao do modulo comas opcoes certas
+    if (!options) {
+      generatecode(filename);
+    } else {
+      printf("O módulo T não aceita opções.");
+    }
   } else if (module == 'c') {
     // chamar a funcao do modulo comas opcoes certas
     if (!options) {

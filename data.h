@@ -60,15 +60,6 @@ typedef struct freq_block {
   struct freq_block *prox;
 } FreqBlock;
 
-/* SHANNON FANO CODING */
-
-/* Struct for symbol data */
-typedef struct symbol {
-  int symbolID;
-  int freq;
-  char *code;
-} Symbol;
-
 char *replace_str(char *str, char *orig, char *rep);
 
 ByteVec *loadArray(FILE *file, size_t block_size);

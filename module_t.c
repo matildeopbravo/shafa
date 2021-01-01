@@ -1,25 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "data.h"
 #include "module_t.h"
-#include "dynamic_arrays.h"
+#include "data.h"
 #include <time.h>
-#define M 64000000
-
-int main(int argc, char *argv[]) {
-    if (!argc) {
-        printf("Please input file name.\n");
-        return 0;
-    }
-    else {
-        generatecode(argv[1]);
-        return 1;
-    }
-}
 
 void generatecode (char *freqs_filename) {
-    /* Initialize clock for run time calculation */
+    /* Initialize clock for execution time calculation */
     clock_t Ticks[2];
     Ticks[0] = clock();
 
@@ -40,26 +27,18 @@ void generatecode (char *freqs_filename) {
         Symbol *symbol_table = (Symbol*) malloc(256*sizeof(Symbol));
         initialize_table (symbol_table, 256);
         
-        printf("Initialized symbol table %d.\n", i);
-
         int size = read_block (freqs_file, symbol_table);
-        printf("Read the block!\n");
         qsort(symbol_table, 256, sizeof(Symbol), compare_freqs);
-        printf("Sorted frequencies and...\n");
         int symbols = get_used_symbols(symbol_table);
         create_shafa_code(symbol_table, 0, symbols);
-        printf("generated the code and finally...\n");
         qsort(symbol_table, 256, sizeof(Symbol), compare_symbolID);
-        printf("sorted symbol IDs!\n");
         
-        write_block(code_file, size, symbol_table);
+        write_code_block(code_file, size, symbol_table);
         free(symbol_table);
         
         block_sizes[i == n_blocks - 1] = size;
 
-        printf("Finished writing block\n");
     }
-    printf("----------\nDone!\n----------\n");
     /* Append null block '0' character */
     fputc('0', code_file);
 
@@ -77,7 +56,7 @@ void generatecode (char *freqs_filename) {
 
 void printStat(int nblocks, int *block_sizes, double time, char *file) {
     printf ("Alexandre Flores, a93220, Rita Lino, a93196, MIEI/CD, 5-jan-2021 \n");
-    printf ("Módulo: t (cálculo dos códigos dos símbolos\n");
+    printf ("Módulo: t (cálculo dos códigos dos símbolos)\n");
     printf ("Número de blocos: %d \n", nblocks);
     printf ("Tamanho dos blocos analisados no ficheiro de símbolos: %d", block_sizes[0]);
     if (block_sizes[1])
@@ -87,56 +66,28 @@ void printStat(int nblocks, int *block_sizes, double time, char *file) {
 }
 
 int initialize_code_file (FILE *input, FILE *output) {
-    int i = 0; // indice do array
-    uint8_t x = 0; // valor que esta no index do array
-    int blocks = 0; // numero de blocos
-    // int ats = 0; // contador de arrobas
-    //ByteVec *vector = loadArray(input, M); 
-    /* while (ats < 2 && i < vector->used ) {
-        //x = byte_vec_index(vector, i);
-        x = fgetc (input);
-            if (x == '@' && ats < 2) {
-                ats++;
-                fputc(x, output);
-                // i++;
-                // x = byte_vec_index(vector, i);
-                x = fgetc (input);
-                blocks = 0;
-                while (x!='@') {
-                    blocks = (10*blocks) + (x-48);
-                    fputc(x, output);
-                    // i++;
-                    // x = byte_vec_index(vector, i);
-                    x = fgetc(input);
-                }
-            }
-    } */
+    int i = 0; // Indice do array
+    uint8_t x = 0; // Valor que esta no index do array
+    int blocks = 0; // Numero de blocos
+
+    /* Copy until the second '@' character, including it */
     while (i++ < 3) {
         x = fgetc(input);
         fputc(x, output);
     }
     
+    /* Copy and get total block number */
     x = fgetc(input);
     while (x!='@') {
         blocks = (10 * blocks) + (x - 48);
         fputc(x, output);
         x = fgetc(input);
     }
-
+    
+    /* Print final '@' character after block size */
     fputc(x, output);
-
-    printf ("Got %d blocks.\n", blocks);
     return blocks;
 }   
-
-/* int write_block_size (FILE *freqs_file, FILE *code_file) {
-    int block_size;
-    fscanf (freqs_file, "%d", &block_size);
-    fprintf (code_file, "%d", block_size);
-    fputc('@', code_file);
-
-    return block_size;
-} */
 
 void initialize_table (Symbol *symbol_table, int n) {
     int i;
@@ -149,13 +100,20 @@ void initialize_table (Symbol *symbol_table, int n) {
 
 int read_block (FILE *freqs_file, Symbol *symbol_table) {
     int i, freq, prev_freq, size;
-    fscanf (freqs_file, "%d", &size);
-    printf("Finished reading block_size (%d) in read_block.\n", size);
-    fgetc(freqs_file);
+    prev_freq = size = 0;
+
+    /* Get block size and consume following '@' character */
+    char c = fgetc(freqs_file);
+    while (c != '@') {
+        size = (10 * size) + (c - 48);
+        c = fgetc(freqs_file);
+    }
+
+    /* Loop for reading all frequency values */
     for (i = 0; i < 256; i++) {
-        if (fscanf (freqs_file, "%d", &freq))
+        if (fscanf (freqs_file, "%d", &freq)) // Value read as expected
             symbol_table[i].freq = freq;
-        else
+        else                                  // Value omitted through ';'
             symbol_table[i].freq = prev_freq;
         prev_freq = freq;
         fgetc (freqs_file);
@@ -179,13 +137,22 @@ int get_used_symbols (Symbol *symbol_table) {
 }
 
 void create_shafa_code (Symbol *symbol_table, int start, int end) { 
-    int p = freq_split(symbol_table, start, end);
-    append_bits(symbol_table, p, start, end);
+    /* Check if dimension is only 2 elements */
+    if (end - start == 2)
+        append_bits(symbol_table, start + 1, start, end);
+    else {
+        /* Find the index of the first element of the second subgroup and append
+         * the '0' and '1' to the subgroups */
+        int p = freq_split(symbol_table, start, end);
+        append_bits(symbol_table, p, start, end);
+        
+        /* Recursively code subgroups for the subgroups we just calculated */
+        if (p - start > 1)
+            create_shafa_code(symbol_table, start, p);
 
-    if (p - start > 1)
-        create_shafa_code(symbol_table, start, p);
-    if (end - p > 1)
-        create_shafa_code(symbol_table, p, end);
+        if (end - p > 1)
+            create_shafa_code(symbol_table, p, end);
+    }
 }
 
 int freq_split(Symbol *symbol_table, int start, int end) {
@@ -194,18 +161,16 @@ int freq_split(Symbol *symbol_table, int start, int end) {
     int dif_freq, min_dif_freq = -1;
      
     for (p = start + 1; p < end; p++) {
-        freqs[0] = freqs[1] = 0;
+        freqs[0] = freqs[1] = 0;    // Reset frequency additions 
         for (i = start; i < end; i++) 
-            freqs[i >= p] += symbol_table[i].freq;
+            freqs[i >= p] += symbol_table[i].freq; // Add frequencies of the two subgroups with p pivot
         
-        dif_freq = abs(freqs[0] - freqs[1]);
-        printf("%d; ", dif_freq);
+        dif_freq = abs(freqs[0] - freqs[1]);    // Calc diference between frequencies of 2 subgroups
         
-        if (dif_freq < min_dif_freq || min_dif_freq == -1)
+        if (dif_freq < min_dif_freq || min_dif_freq == -1) // Frequency dif still decreasing/uninitialized, continue looping
             min_dif_freq = dif_freq;
-        else break;
+        else break; // Frequency dif worsened, best pivot already found
     }
-    printf("Found this pivot from %d to %d: %d\n", start, end, p-1);
     return (p-1);
 }
 
@@ -213,33 +178,26 @@ void append_bits (Symbol *symbol_table, int p, int start, int end) {
     int i;
     char bit_char[2];
     for (i = start; i < end; i++) {
-        bit_char[0] = (i >= p) + 48;
-        bit_char[1] = 0;
+        bit_char[0] = (i >= p) + 48; // '0' if in first subgroup, '1' otherwise
+        bit_char[1] = 0;             // Null character so as to use strcat sucessfully 
         strcat(symbol_table[i].code, bit_char);
     }
 }
 
-void write_block (FILE * code_file, int block_size, Symbol *symbol_table) {
+void write_code_block (FILE * code_file, int block_size, Symbol *symbol_table) {
     int i;
+    /* Print block size and appending '@' character */
     fprintf (code_file, "%d", block_size);
     fputc('@', code_file);
 
+
     for (i = 0; i < 256; i++) {
-        if (symbol_table[i].code)
+        if (symbol_table[i].code)   // Character has a code, so we print it
             fprintf(code_file, "%s", symbol_table[i].code);
         fputc(';', code_file);
     }
-
+    
+    /* Replace last ';' with a '@' */
     fseek(code_file, -1, SEEK_CUR);
     fputc('@', code_file);
-}
-
-/* DEBUGGING */
-
-void print_table (Symbol *symbol_table) {
-    for (int i = 0; i < 256; i++) {
-        printf("%d    ", symbol_table[i].symbolID);
-        printf("%d    ", symbol_table[i].freq);
-        printf("%s\n", symbol_table[i].code);
-    }
 }
