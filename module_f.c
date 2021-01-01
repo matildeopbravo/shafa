@@ -91,6 +91,7 @@ int checkSum(ByteVec *self) {
   TuppleVec *vec = tupple_vec_new();
   vec = compress(self);
   i = calcCompress(vec);
+  tupple_vec_del(vec);
   if (i < 5)
     return 0;
   return 1;
@@ -119,7 +120,8 @@ int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
 }
 
 int compress_blocks(BlockFiles *self, int FORCE_FLAG) {
-  Blocks *list = initializeBlocks();
+  /* Blocks *list = initializeBlocks(); */
+  Blocks *list;
   /* Blocks *list; */
   if (checkSum(self->blocks->blocklist) == 0 && !FORCE_FLAG) {
     return 0;
@@ -173,7 +175,7 @@ FreqBlock *calFreq(BlockFiles const *file) {
       for (i = 0; i < uint_range; i++)
         array[i] = 0;
       /* Vamos preencher o array com as frequências de um bloco. */
-      for (i = 0; i < byte_vec_used(vec); i++)
+      for (i = 0; i < used; i++)
         array[byte_vec_index(vec, i)]++;
       /* Adicionar as frequencias ao nosso BlockFiles. */
       arrayToFreqBlock(array, freq);
