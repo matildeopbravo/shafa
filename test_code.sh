@@ -8,7 +8,7 @@ validate () {
     ./shafa "$1" -m c > /dev/null
     output=$( (valgrind ./shafa "$1" -m c >/dev/null) 2>&1 )
 
-    if diff "$1.$extension" "$example_dir/$1.extension"; then
+    if diff "$1.$extension" "$example_dir/$1.$extension"; then
       tput setaf 2; echo "FILES LOOK THE SAME" ;tput sgr0
     else
       tput setaf 1; echo "[WARNING] FILES ARE DIFFERENT [WARNING]" ; tput sgr0
