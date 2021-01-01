@@ -33,11 +33,15 @@ void generatecode (char *freqs_filename) {
         create_shafa_code(symbol_table, 0, symbols);
         qsort(symbol_table, 256, sizeof(Symbol), compare_symbolID);
         
-        write_code_block(code_file, size, symbol_table);
-        free(symbol_table);
+        write_code_block(code_file, size, symbol_table); 
         
         block_sizes[i == n_blocks - 1] = size;
 
+        int j;
+        for (j = 0; j < 256; j++) {
+            free(symbol_table[j].code);
+        }
+        free(symbol_table);
     }
     /* Append null block '0' character */
     fputc('0', code_file);
