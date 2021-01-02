@@ -35,7 +35,11 @@ int main(int argc, char *argv[]) {
   if (argc < 4) {
     printf("Não foram fornecidos argumentos suficientes\n");
     error = 1;
-  } else {
+  }
+  else if(strcmp(argv[2],"-m") ){
+    printf("%s : opção desconhecida\n",argv[2]);
+  }
+  else {
     char *ficheiro = argv[1];
     unsigned char module = argv[3][0];
     argv = argc > 4 ? argv + 4 : NULL;
