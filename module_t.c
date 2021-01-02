@@ -26,15 +26,15 @@ void generatecode (char *freqs_filename) {
     for (i = 0; i < n_blocks; i++) {
         Symbol *symbol_table = (Symbol*) malloc(256*sizeof(Symbol));
         initialize_table (symbol_table, 256);
-        
+
         int size = read_block (freqs_file, symbol_table);
         qsort(symbol_table, 256, sizeof(Symbol), compare_freqs);
         int symbols = get_used_symbols(symbol_table);
         create_shafa_code(symbol_table, 0, symbols);
         qsort(symbol_table, 256, sizeof(Symbol), compare_symbolID);
-        
-        write_code_block(code_file, size, symbol_table); 
-        
+
+        write_code_block(code_file, size, symbol_table);
+
         block_sizes[i == n_blocks - 1] = size;
 
         int j;
@@ -79,7 +79,7 @@ int initialize_code_file (FILE *input, FILE *output) {
         x = fgetc(input);
         fputc(x, output);
     }
-    
+
     /* Copy and get total block number */
     x = fgetc(input);
     while (x!='@') {
@@ -87,11 +87,11 @@ int initialize_code_file (FILE *input, FILE *output) {
         fputc(x, output);
         x = fgetc(input);
     }
-    
+
     /* Print final '@' character after block size */
     fputc(x, output);
     return blocks;
-}   
+}
 
 void initialize_table (Symbol *symbol_table, int n) {
     int i;
@@ -135,12 +135,16 @@ int compare_symbolID (const void *a, const void *b) {
 }
 
 int get_used_symbols (Symbol *symbol_table) {
-    int i = 0;
-    while (symbol_table[i++].freq);
-    return (i-1);
+    int i, count;
+    i = count = 0;
+    while (i < 256) {
+        if (symbol_table[i].freq) count++;
+        i++;
+    }
+    return count;
 }
 
-void create_shafa_code (Symbol *symbol_table, int start, int end) { 
+void create_shafa_code (Symbol *symbol_table, int start, int end) {
     /* Check if dimension is only 2 elements */
     if (end - start == 2)
         append_bits(symbol_table, start + 1, start, end);
@@ -149,7 +153,7 @@ void create_shafa_code (Symbol *symbol_table, int start, int end) {
          * the '0' and '1' to the subgroups */
         int p = freq_split(symbol_table, start, end);
         append_bits(symbol_table, p, start, end);
-        
+
         /* Recursively code subgroups for the subgroups we just calculated */
         if (p - start > 1)
             create_shafa_code(symbol_table, start, p);
@@ -163,14 +167,14 @@ int freq_split(Symbol *symbol_table, int start, int end) {
     int p, i;
     int freqs[2] = {0, 0};
     int dif_freq, min_dif_freq = -1;
-     
+
     for (p = start + 1; p < end; p++) {
-        freqs[0] = freqs[1] = 0;    // Reset frequency additions 
-        for (i = start; i < end; i++) 
+        freqs[0] = freqs[1] = 0;    // Reset frequency additions
+        for (i = start; i < end; i++)
             freqs[i >= p] += symbol_table[i].freq; // Add frequencies of the two subgroups with p pivot
-        
+
         dif_freq = abs(freqs[0] - freqs[1]);    // Calc diference between frequencies of 2 subgroups
-        
+
         if (dif_freq < min_dif_freq || min_dif_freq == -1) // Frequency dif still decreasing/uninitialized, continue looping
             min_dif_freq = dif_freq;
         else break; // Frequency dif worsened, best pivot already found
@@ -183,7 +187,7 @@ void append_bits (Symbol *symbol_table, int p, int start, int end) {
     char bit_char[2];
     for (i = start; i < end; i++) {
         bit_char[0] = (i >= p) + 48; // '0' if in first subgroup, '1' otherwise
-        bit_char[1] = 0;             // Null character so as to use strcat sucessfully 
+        bit_char[1] = 0;             // Null character so as to use strcat sucessfully
         strcat(symbol_table[i].code, bit_char);
     }
 }
@@ -194,13 +198,12 @@ void write_code_block (FILE * code_file, int block_size, Symbol *symbol_table) {
     fprintf (code_file, "%d", block_size);
     fputc('@', code_file);
 
-
     for (i = 0; i < 256; i++) {
         if (symbol_table[i].code)   // Character has a code, so we print it
             fprintf(code_file, "%s", symbol_table[i].code);
         fputc(';', code_file);
     }
-    
+
     /* Replace last ';' with a '@' */
     fseek(code_file, -1, SEEK_CUR);
     fputc('@', code_file);
