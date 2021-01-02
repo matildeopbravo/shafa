@@ -14,17 +14,12 @@ validate () {
       tput setaf 1; echo "[WARNING] FILES ARE DIFFERENT [WARNING]" ; tput sgr0
     fi
 
-    if  echo "$output" | grep " 0 errors"; then
-        :
-    else
+    if  ! (echo "$output" | grep " 0 errors"); then
       tput setaf 1 ; echo "Valgrind found some errors." ; tput sgr0;
     fi
-    if echo "$output" | grep "no leaks are possible"; then
-      :
-    else
+    if ! (echo "$output" | grep "no leaks are possible"); then
       tput setaf 1 ; echo "Valgrind found some memory leaks." ; tput sgr0;
     fi
-
 }
 
 declare -a files=("aaa.txt" "Shakespeare.txt" "bbb.zip" )
