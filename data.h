@@ -13,12 +13,11 @@
 
 #define BUFFER_SIZE 1024
 #define uint_range 256
-#define k 64000
-#define K 640000
-#define m 8000000
+#define k 65536
+#define K 655360
+#define m 8388608
 
-#define M 64000000
-
+#define M 67108864
 enum compression { NOT_COMPRESSED, COMPRESSED };
 
 /* FILE */

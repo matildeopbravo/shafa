@@ -53,8 +53,7 @@ void byte_vec_push(ByteVec *self, uint8_t v) {
 
 void byte_vec_del(ByteVec *self) {
   free(self->vec);
-  /* free(self); */
-  self = NULL;
+  free(self);
 }
 
 size_t tupple_vec_size(TuppleVec const *self) { return self->size; }
@@ -91,6 +90,5 @@ void tupple_vec_push(TuppleVec *self, uint8_t b, uint8_t c) {
 
 void tupple_vec_del(TuppleVec *self) {
   free(self->vec);
-  /* free(self); */
-  self = NULL;
+  free(self);
 }

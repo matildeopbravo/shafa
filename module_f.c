@@ -330,8 +330,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
-     int count = uint_range - 1;
-    //int count = uint_range - 2;
+    int count = uint_range - 1;
     /* Simbolo 0 ate ao 254 */
     while (j < (count)) {
       num_freq = aux_Freq->freq[j];
@@ -348,8 +347,6 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
     if (last != num_freq)
       fprintf(fp, "%d", num_freq);
-    else
-      fprintf(fp, ";");
     i = i + 1;
     aux_Freq = aux_Freq->prox;
     aux_Blocks = aux_Blocks->prox;
@@ -439,6 +436,7 @@ int module_f(char const *filename, size_t const the_block_size,
   strcat(filename_freq, ".freq");
 
   wfile = fopen(filename_freq, "w");
+  /* error = writeFreq(wfile, filename_freq, self, freq_file); */
   error = writeFreq(wfile, filename_freq, self, freq_file);
   if (error != 1)
     return Module_f_ERROR_IN_FILE;
@@ -468,10 +466,12 @@ int module_f(char const *filename, size_t const the_block_size,
     strcat(filename_rle, ".freq");
     wfile_rle = fopen(filename_rle, "w");
     /* Imprimir as frequências obtidas dos blocos. */
+    /* error = writeFreq(wfile, filename_rle, self, freq_file_rle); */
     error = writeFreq(wfile, filename_rle, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
-      //free_Freq(freq_file_rle);
+    else
+      free_Freq(freq_file_rle);
   }
 
   long double blocks = calcCompress_blocks(self);
@@ -484,8 +484,8 @@ int module_f(char const *filename, size_t const the_block_size,
   /* Apresentar menu final relativo ao módulo. */
   print_module_f(filename, self, blocks, time);
   /* Libertar o espaço alocado. */
-//  free_Freq(freq_file);
-//  free_Blocks_file(self);
+  free_Freq(freq_file);
+  free_Blocks_file(self);
   return sucess;
 }
 
@@ -572,8 +572,7 @@ int call_module_f(char *filename, char *options[]) {
     }
   }
   /* block_size = 655360; */
-  //block_size = 2048;
-  block_size = 655360;
+  /* block_size = 2048; */
   /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
   verificar_erro(result);

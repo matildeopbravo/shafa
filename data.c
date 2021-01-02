@@ -44,9 +44,10 @@ void free_Freq(FreqBlock *e) {
   FreqBlock *aux;
   while (e) {
     aux = e;
+    e = e->prox;
+    aux->prox = NULL;
     /* free(aux->freq); */
     free(aux);
-    e = e->prox;
   }
 }
 
@@ -60,14 +61,14 @@ Blocks *initializeBlocks() {
 
 void free_Blocks(Blocks *e) {
   Blocks *aux;
-  ByteVec *aux_vec;
+  /* ByteVec *aux_vec; */
   while (e) {
     aux = e;
-    aux_vec = e->blocklist;
-    byte_vec_del(aux_vec);
+    /* aux_vec = e->blocklist; */
+    /* byte_vec_del(aux_vec); */
+    byte_vec_del(e->blocklist);
     /* se der bug é por causa deste free */
-    /* free(aux_vec); */
-    e->blocklist = NULL;
+    /* aux->prox = NULL; */
     e = e->prox;
     free(aux);
   }
@@ -83,15 +84,15 @@ Blocks_C *initializeBlocks_C() {
 
 void free_Blocks_C(Blocks_C *e) {
   Blocks_C *aux;
-  TuppleVec *aux_vec;
+  /* TuppleVec *aux_vec; */
   while (e) {
     aux = e;
-    aux_vec = e->tBList;
-    tupple_vec_del(aux_vec);
+    /* aux_vec = e->tBList; */
+    /* tupple_vec_del(aux_vec); */
     /* se der bug é por causa deste free */
-    free(e->tBList);
-    e->tBList = NULL;
+    tupple_vec_del(e->tBList);
     e = e->prox;
+    aux->prox = NULL;
     free(aux);
   }
 }
