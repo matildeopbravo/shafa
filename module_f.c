@@ -1,7 +1,7 @@
 /**
  * @file module_f.c
  * @author Mariana Dinis Rodrigues e Mike
- * @date 28 Dezembro 2020
+ * @date 02 Janeiro 2021
  * Responsible for compressing RLE and calculating frequencies.
  * @brief Responsavel pela compressao RLE e pelo calculo das frequencias.
  \brief Responsavel pela compressao RLE e pelo calculo das frequencias.
@@ -37,7 +37,8 @@ TuppleVec *compress(ByteVec const *self) {
   size_t i = 1, count = 1, used = self->used;
   uint8_t last = byte_vec_index(self, 0), las2 = 0;
   while (i < used && count < (uint_range - 1)) {
-    if (last == self->vec[i]) {
+    /* if (last == self->vec[i]) { */
+    if (last == byte_vec_index(self, i)) {
       count++;
       last = byte_vec_index(self, i);
       las2 = byte_vec_index(self, i - 1);
@@ -62,8 +63,9 @@ int write_compressed(FILE *file, BlockFiles const *self) {
   ByteTupple b;
   Blocks_C *list = self->blocks_c;
   size_t used = 0, i;
+  TuppleVec *yes;
   while (list) {
-    TuppleVec *yes = list->tBList;
+    yes = list->tBList;
     used = tupple_vec_used(yes);
     for (i = 0; i < used; i++) {
       temp = 0;
@@ -197,7 +199,7 @@ int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]) {
     for (i = 0; i < uint_range; i++)
       array[i] = 0;
     for (i = 0; i < used; i++) {
-      /* Variáveis auxiliares para n estramos sempre a ir à memória. */
+      /* Variáveis auxiliares para n estar-mos sempre a ir à memória. */
       aux = tupple_vec_index(vec, i);
       count = aux.count;
       byte = aux.byte;
@@ -238,11 +240,8 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     Blocks_C *blocks = file->blocks_c;
     int num_blocks = file->num_blocks, num = 0;
     TuppleVec *vec = file->blocks_c->tBList;
-    size_t i = 0, block_size = 0;
+    size_t block_size = 0;
     int array[uint_range];
-    /* Vamos garantir que o array encontra-se todo a 0. */
-    for (; i < uint_range; i++)
-      array[i] = 0;
 
     if (sucess != TuppleVec_freq(vec, &block_size, &*array))
       return NULL;
@@ -411,10 +410,12 @@ int module_f(char const *filename, size_t const the_block_size,
   /* Iniciar a nossa estrutura de dados */
   BlockFiles *self = initializeBlockFiles();
   size_t n_blocks = 0, size_last_block = 0, block_size = the_block_size;
-  FILE *fp1 = fopen(filename, "r");
+  FILE *fp1 = fopen(filename, "rb");
 
   /* Aqui usamos  a função do professor com pequenas alterações. */
   n_blocks = fsize(fp1, filename, &block_size, &size_last_block);
+  if (fp1)
+    fclose(fp1);
   /* Lemos o file por blocos, colocando-o na nossa estrutura de dados */
   int error =
       building_blocks(rfile, self, n_blocks, size_last_block, the_block_size);
@@ -572,7 +573,7 @@ int call_module_f(char *filename, char *options[]) {
     }
   }
   /* block_size = 655360; */
-  /* block_size = 2048; */
+  block_size = 2048;
   /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
   verificar_erro(result);

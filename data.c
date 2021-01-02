@@ -61,15 +61,11 @@ Blocks *initializeBlocks() {
 
 void free_Blocks(Blocks *e) {
   Blocks *aux;
-  /* ByteVec *aux_vec; */
   while (e) {
     aux = e;
-    /* aux_vec = e->blocklist; */
-    /* byte_vec_del(aux_vec); */
     byte_vec_del(e->blocklist);
-    /* se der bug é por causa deste free */
-    /* aux->prox = NULL; */
     e = e->prox;
+    aux->prox = NULL;
     free(aux);
   }
 }
@@ -84,15 +80,10 @@ Blocks_C *initializeBlocks_C() {
 
 void free_Blocks_C(Blocks_C *e) {
   Blocks_C *aux;
-  /* TuppleVec *aux_vec; */
   while (e) {
     aux = e;
-    /* aux_vec = e->tBList; */
-    /* tupple_vec_del(aux_vec); */
-    /* se der bug é por causa deste free */
     tupple_vec_del(e->tBList);
     e = e->prox;
-    aux->prox = NULL;
     free(aux);
   }
 }
@@ -112,7 +103,6 @@ void free_Blocks_file(BlockFiles *e) {
   if (e->blocks_c)
     free_Blocks_C(e->blocks_c);
   free(e);
-  e = NULL;
 }
 
 /* Adiciona um bloco (Blocks) no nosso BlockFiles */
