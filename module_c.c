@@ -1,3 +1,12 @@
+/**
+ * @file module_c.c
+ * @author Matilde Oliveira Pizarro Bravo
+ * @date 5 Janeiro 2021
+ * Responsible for generating fully compressed file (shaf), provided the text file and the file with Shannon-Fano codes.
+ * @brief Responsável por gerar um ficheiro comprimido (shaf), dado um ficheiro de texto e um ficheiro com os códigos Shannon-Fano.
+ \brief Responsável por gerar um ficheiro comprimido (shaf), dado um ficheiro de texto e um ficheiro com os códigos Shannon-Fano.
+ */
+
 #include "module_c.h"
 
 #include <stdio.h>
@@ -6,6 +15,9 @@
 #include <time.h>
 
 #include "dynamic_arrays.h"
+/**
+\brief Devolve uma peça(code+index+next) da matrz de bytes
+*/
 
 static Piece* get_piece(
     Piece* matrix,
@@ -14,7 +26,9 @@ static Piece* get_piece(
     uint16_t number_symbols) {
     return matrix + number_symbols * offset + symbol_index;
 }
-
+/**
+\brief Escreve o resultado da compressão de um bloco no ficheiro shaf
+*/
 static int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     ByteVec* vec = byte_vec_new();
     int error = 0;
@@ -50,7 +64,9 @@ static int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     free(vec);
     return error;
 }
-
+/**
+\brief Escreve o resultado da compressão de todos os blocos no ficheiro shaf, bem como informação sobre o número de blocos e o seu tamanho.
+*/
 static int write_file(
     FullSequence* full_seq, char const* shaf_file, char const* input_file) {
 
@@ -68,6 +84,9 @@ static int write_file(
     fclose(fp_input);
     return error;
 }
+/**
+\brief Lê carateres do ficheiro cod e converte os carateres lidos para o número correspondente.
+*/
 
 static size_t count_numbers(char* c, FILE* fp_cod) {
     char tmp = *c;
@@ -83,6 +102,9 @@ static size_t count_numbers(char* c, FILE* fp_cod) {
     free(buffer.vec);
     return n;
 }
+/**
+\brief Cria uma nova peça a partir da peça correspondente do offset anterior. Faz os shifts necessários no code da peça nova.
+*/
 
 static void shift_piece(Piece* previous, Piece* current, uint16_t number_symbols) {
     for (size_t i = previous->byte_index;; i--) {
@@ -96,6 +118,9 @@ static void shift_piece(Piece* previous, Piece* current, uint16_t number_symbols
     current->byte_index =
         previous->byte_index + (previous->next == 7 * number_symbols);
 }
+/**
+\brief Cria um offset, do 1 ao 7, da matriz de bytes
+*/
 
 static void make_offset(Block* block, int offset) {
     Piece* pieces_current = block->matrix + block->number_symbols * offset;
@@ -107,6 +132,8 @@ static void make_offset(Block* block, int offset) {
         shift_piece(pieces_previous + i, pieces_current + i, number_symbols);
     }
 }
+/**
+\brief Cria um code, array de inteiros de 8 bits, com tamanho máximo CODE_MAX_SIZE*/
 
 static uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
 
@@ -136,7 +163,9 @@ static uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
     }
     return arr;
 }
-
+/**
+\brief Inicializa a matriz de bytes e cria o primeiro offset e as respetivas peças.
+*/
 static void start_matrix(Block* block, uint8_t* symbols) {
     Piece* matrix = calloc(sizeof(Piece), block->number_symbols * 8);
     block->matrix = matrix;
@@ -161,12 +190,18 @@ static void start_matrix(Block* block, uint8_t* symbols) {
         }
     }
 }
+/**
+\brief Cria a matriz de bytes que será utilizada para otimizar a compressão.
+*/
 static void matrix_optimization(Block* block, uint8_t* symbols) {
     start_matrix(block, symbols);
     for (int i = 1; i < 8; i++) {
         make_offset(block, i);
     }
 }
+/**
+\brief Lê um bloco do ficheiro cod, imediatamente a seguir a ter sido guardado o seu tamanho.
+*/
 
 static void read_block(
     FILE* fp_cod, FullSequence* full_seq, char* c, size_t nblock) {
@@ -198,6 +233,10 @@ static void read_block(
     full_seq->blocks[nblock].biggest_code_size = max_size;
     matrix_optimization(&full_seq->blocks[nblock], symbols);
 }
+/**
+\brief Lê o ficheiro cod e guarda a informação relativa a cada um dos blocos nas respetivas estruturaas de dados.
+*/
+
 
 static int read_cod(char* cod_file, FullSequence* full_seq) {
     size_t nblock = 0 , size = 0;
@@ -215,10 +254,6 @@ static int read_cod(char* cod_file, FullSequence* full_seq) {
                 c = fgetc(fp_cod);
                 if (param == BLOCK_SIZE) {
                         size = count_numbers( &c, fp_cod);  // o c já tem o primeiro digito
-                        if (i == 0) {
-                            full_seq->size_first_block = size;
-                        }
-                        full_seq->size_last_block = size;
                         full_seq->blocks[nblock].block_size_before = size;
                         param = SEQUENCE;
                     }
@@ -234,6 +269,10 @@ static int read_cod(char* cod_file, FullSequence* full_seq) {
     fclose(fp_cod);
     return error;
 }
+/**
+\brief Liberta toda a memória que o programa alocou na Heap.
+*/
+
 static void destructor(FullSequence* sequence,char*shaf_file,char*cod_file) {
     for (size_t i = 0; i < sequence->number_blocks; i++) {
         for (size_t j = 0; j < (sequence->blocks[i].number_symbols) * 8; j++) {
@@ -249,7 +288,9 @@ static void destructor(FullSequence* sequence,char*shaf_file,char*cod_file) {
     free(cod_file);
     free(shaf_file);
 }
-
+/**
+\brief Função de debugging que imprime os valores guardados na estrutura dicionário.
+*/
 static void print_dictionary(FullSequence* full_seq) {
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
         printf(
@@ -269,7 +310,9 @@ static void print_dictionary(FullSequence* full_seq) {
         putchar('\n');
     }
 }
-
+/**
+\brief Envia para o stdout informação relevante relativamente à execução do programa.
+*/
 static void print_console(FullSequence* full_seq, double time, char* filename) {
     printf("Matilde Bravo, a93246, MIEI/CD, 1-jan-2021\n");
     printf("Módulo: c (codificação de um ficheiro de símbolos\n");
@@ -291,6 +334,10 @@ static void print_console(FullSequence* full_seq, double time, char* filename) {
     printf("Taxa de compressão global: %zu%%\n", compression);
     printf("Ficheiro gerado: %s.shaf\n", filename);
 }
+/**
+\brief Função de debugging que imprime no ecrã o conteúdo da matriz de bytes utilizada na otimização.
+*/
+
 static void print_matrix(FullSequence* full_seq) {
     int z = 0;
     for (size_t i = 0; i < full_seq->number_blocks; i++) {
@@ -320,13 +367,18 @@ static void print_matrix(FullSequence* full_seq) {
         }
     }
 }
-
+/**
+\brief Devolve um apontador para um array de chars que contem o nome do ficheiro
+*/
 static char * get_filename(char*symbol_file,char * extension) {
     char* cod_file = malloc(strlen(symbol_file) + strlen(extension) + 1);
     strcpy(cod_file, symbol_file);
     strcat(cod_file, extension);
     return cod_file;
 }
+/**
+\brief Função principal do módulo c cujo objetivo é converter um ficheiro de texto para um ficheiro shaf comprimido.
+*/
 
 void module_c(char* symbol_file) {
 
