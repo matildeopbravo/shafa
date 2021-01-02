@@ -30,10 +30,10 @@ ByteVec *loadArray(FILE *file, size_t block_size) {
   return self;
 }
 
-FreqBlock *initializeFreq(int array[uint_range]) {
+FreqBlock *initializeFreq(size_t array[uint_range]) {
   FreqBlock *e = (FreqBlock *)calloc(1, sizeof(FreqBlock));
   e->prox = NULL;
-  int i;
+  size_t i;
   i = 0;
   for (; i < uint_range; i = i + 1)
     e->freq[i] = array[i];
@@ -131,7 +131,7 @@ void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self) {
 }
 
 /* Array of ints to a FreqBlock */
-void arrayToFreqBlock(int array[uint_range], FreqBlock *e) {
+void arrayToFreqBlock(size_t array[uint_range], FreqBlock *e) {
   FreqBlock *aux, *new;
   aux = e;
   new = initializeFreq(array);
@@ -147,8 +147,9 @@ void arrayToFreqBlock(int array[uint_range], FreqBlock *e) {
 
 void print_freq(FreqBlock *freq) {
   FreqBlock *aux = freq;
+  size_t i;
   while (aux) {
-    for (int i = 0; i < uint_range; i++)
+    for (i = 0; i < uint_range; i++)
       printf(" %d,", aux->freq[i]);
     printf("\n");
     aux = aux->prox;
@@ -164,12 +165,12 @@ void printByteVec(ByteVec const *self) {
 }
 
 void printEqual(TuppleVec const *vec) {
-  int counter = 0;
+  size_t counter = 0;
   size_t i = 0;
   for (; i < tupple_vec_used(vec); i++) {
     ByteTupple self = tupple_vec_index(vec, i);
     printf("%d,%d ", self.byte, self.count);
     counter = self.count + counter;
   }
-  printf("\n %d \n", counter);
+  printf("\n %ld \n", counter);
 }

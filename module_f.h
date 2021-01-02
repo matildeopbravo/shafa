@@ -50,7 +50,7 @@ TuppleVec *compress(ByteVec const *self);
 /**
  \brief Escreve a compressâo RLE de um BlockFile num determinado file.
  */
-int write_compressed(FILE *file, BlockFiles const *self);
+size_t write_compressed(FILE *file, BlockFiles const *self);
 
 /**
  \brief Verifica se a compressão de um determinado bloco é superior ou igual
@@ -58,7 +58,7 @@ int write_compressed(FILE *file, BlockFiles const *self);
 
  \return 1 se a compressão obtida for superior ou igual 5, 0 caso contrário.
  */
-int checkSum(ByteVec *self);
+size_t checkSum(ByteVec *self);
 
 /**
  \brief Esta função recebe um file e coloca-o por blocos na nossa estrutura de
@@ -69,8 +69,8 @@ int checkSum(ByteVec *self);
  \param block_size Tamanho dos restantes blocos.
  \return 1 em caso de sucesso.
 */
-int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
-                    size_t size_last_block, size_t block_size);
+size_t building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
+                       size_t size_last_block, size_t block_size);
 
 /**
  \brief Executa a compressão RLE dos nossos blocos.
@@ -78,7 +78,7 @@ int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
  * primeiro bloco for superior ou igual a cinco, ou se a nossa FORCE_FLAG for 1.
  \return 1 caso se tenha comprimido os blocos, 0 caso contrário.
  */
-int compress_blocks(BlockFiles *self, int FORCE_FLAG);
+size_t compress_blocks(BlockFiles *self, size_t FORCE_FLAG);
 
 /**
  \brief Calcula a compressão média das compressao dos blocos.
@@ -97,7 +97,8 @@ FreqBlock *calFreq(BlockFiles const *file);
  \param *block_size_ No final da função aoresenta o tamanho real do bloco.
  \return 1 em caso de sucesso
  */
-int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]);
+size_t TuppleVec_freq(TuppleVec *vec, size_t *block_size_,
+                      size_t array[uint_range]);
 
 /**
  \brief Recebe um determinado BlockFiles e retorna as frequências de cada bloco.
@@ -110,8 +111,8 @@ FreqBlock *calFreq_RLE(BlockFiles *file);
  \brief Escreve as frequências dos blocos num determinado file dado.
  \return 1 em caso de sucesso.
  */
-int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
-              FreqBlock *freq);
+size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
+                 FreqBlock *freq);
 
 /**
  \brief Imprime os resultados obtidos do MODULE_F.
@@ -126,7 +127,8 @@ void print_module_f(const char *filename, BlockFiles const *self,
  \param FORCE_FLAG Flag que determina se a compressão RLE é forçada.
  \return 1 em caso de sucesso.
  */
-int module_f(char const *filename, size_t const the_block_size, int FORCE_FLAG);
+size_t module_f(char const *filename, size_t const the_block_size,
+                size_t const FORCE_FLAG);
 
 /**
  \brief Avisa que argumentos dados não são válidos.
@@ -142,6 +144,6 @@ size_t convert_block_size(char letter);
   \brief Função que analisa os argumentos dados e chama o módule f.
   \return 1 em caso de sucesso
  */
-int call_module_f(char *filename, char *options[]);
+size_t call_module_f(char *filename, char *options[]);
 
 #endif // __MODULE_F_H_

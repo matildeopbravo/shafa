@@ -68,7 +68,7 @@ ByteVec *loadArray(FILE *file, size_t block_size);
 \param array Array de interios
 \return FreqBlock.
 */
-FreqBlock *initializeFreq(int array[uint_range]);
+FreqBlock *initializeFreq(size_t array[uint_range]);
 
 /**
 \brief Função que liberta a memória alocada dos FreqBlock.
@@ -121,7 +121,7 @@ void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self);
 /**
 \brief Função que adiciona um dado array de inteiros a FreqBlock.
 */
-void arrayToFreqBlock(int array[uint_range], FreqBlock *e);
+void arrayToFreqBlock(size_t array[uint_range], FreqBlock *e);
 
 /**
 \brief Funcção que imprime um FreqBlock.

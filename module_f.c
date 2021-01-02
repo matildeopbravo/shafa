@@ -35,30 +35,25 @@ long double calcCompress(TuppleVec const *self) {
 TuppleVec *compress(ByteVec const *self) {
   TuppleVec *t = tupple_vec_new();
   size_t i = 1, count = 1, used = self->used;
-  uint8_t last = byte_vec_index(self, 0), las2 = 0;
+  uint8_t last = byte_vec_index(self, 0);
   while (i < used && count < (uint_range - 1)) {
     /* if (last == self->vec[i]) { */
     if (last == byte_vec_index(self, i)) {
       count++;
       last = byte_vec_index(self, i);
-      las2 = byte_vec_index(self, i - 1);
     } else {
       tupple_vec_push(t, last, count);
       last = byte_vec_index(self, i);
-      las2 = byte_vec_index(self, (i - 1));
       count = 1;
     }
     i++;
   }
-  if (last == las2) {
-    tupple_vec_push(t, last, count);
-  } else if (last != 10)
-    tupple_vec_push(t, last, count);
+  tupple_vec_push(t, last, count);
   t->n_used = self->used;
   return t;
 }
 
-int write_compressed(FILE *file, BlockFiles const *self) {
+size_t write_compressed(FILE *file, BlockFiles const *self) {
   uint8_t x, temp, y;
   ByteTupple b;
   Blocks_C *list = self->blocks_c;
@@ -88,7 +83,7 @@ int write_compressed(FILE *file, BlockFiles const *self) {
   return 0;
 }
 
-int checkSum(ByteVec *self) {
+size_t checkSum(ByteVec *self) {
   long double i = 0;
   TuppleVec *vec = tupple_vec_new();
   vec = compress(self);
@@ -99,8 +94,8 @@ int checkSum(ByteVec *self) {
   return 1;
 }
 
-int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
-                    size_t size_last_block, size_t block_size) {
+size_t building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
+                       size_t size_last_block, size_t block_size) {
   if (!file)
     return BUILDING_ERROR_IN_FILE;
   if (!self)
@@ -121,7 +116,7 @@ int building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
   return 1;
 }
 
-int compress_blocks(BlockFiles *self, int FORCE_FLAG) {
+size_t compress_blocks(BlockFiles *self, size_t FORCE_FLAG) {
   /* Blocks *list = initializeBlocks(); */
   Blocks *list;
   /* Blocks *list; */
@@ -154,10 +149,10 @@ long double calcCompress_blocks(BlockFiles const *self) {
 FreqBlock *calFreq(BlockFiles const *file) {
   if (file) {
     Blocks *blocks = file->blocks;
-    int num_blocks = file->num_blocks, num = 0;
+    size_t num_blocks = file->num_blocks, num = 0;
     ByteVec *vec = file->blocks->blocklist;
     size_t i = 0;
-    int array[uint_range];
+    size_t array[uint_range];
     size_t used = byte_vec_used(vec);
     /* Vamos garantir que o array encontra-se todo a 0. */
     for (; i < uint_range; i++)
@@ -168,6 +163,8 @@ FreqBlock *calFreq(BlockFiles const *file) {
     blocks = blocks->prox;
     num++;
 
+    /* Inicializamos a nossa estrutura das frequências através do array obtido
+     */
     FreqBlock *freq = initializeFreq(array);
     /* Restantes Blocos. */
     while (num <= num_blocks && blocks) {
@@ -189,7 +186,8 @@ FreqBlock *calFreq(BlockFiles const *file) {
     return NULL;
 }
 
-int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]) {
+size_t TuppleVec_freq(TuppleVec *vec, size_t *block_size_,
+                      size_t array[uint_range]) {
   if (vec) {
     ByteTupple aux;
     size_t i, used = tupple_vec_used(vec);
@@ -238,10 +236,10 @@ int TuppleVec_freq(TuppleVec *vec, size_t *block_size_, int array[uint_range]) {
 FreqBlock *calFreq_RLE(BlockFiles *file) {
   if (file) {
     Blocks_C *blocks = file->blocks_c;
-    int num_blocks = file->num_blocks, num = 0;
+    size_t num_blocks = file->num_blocks, num = 0;
     TuppleVec *vec = file->blocks_c->tBList;
     size_t block_size = 0;
-    int array[uint_range];
+    size_t array[uint_range];
 
     if (sucess != TuppleVec_freq(vec, &block_size, &*array))
       return NULL;
@@ -271,9 +269,9 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     return NULL;
 }
 
-int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
-              FreqBlock *freq) {
-  long long n_blocks;
+size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
+                 FreqBlock *freq) {
+  size_t n_blocks;
 
   /* Check if the BlockFile is not empty */
   /* Verifica se o BlockFile encontra-se vazio */
@@ -286,7 +284,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   if (freq == NULL)
     return WriteFreq_ERROR_IN_FILE;
 
-  int i, j, last = -1;
+  size_t i, j, last = -1;
   /* Compression_type */
   char compression_type;
   if (BlockFile->compression_type == NOT_COMPRESSED)
@@ -315,12 +313,12 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   /* ESCREVER:  */
   /* dados inicias */
   /* @<R|N>@NumerodeBlocos */
-  fprintf(fp, "%c%c%c%lld", uint_Arroba, compression_type, uint_Arroba,
+  fprintf(fp, "%c%c%c%ld", uint_Arroba, compression_type, uint_Arroba,
           n_blocks);
   /* write the frequency of a block */
   i = 0;
-  int num_freq;
-  while (aux_Blocks && aux_Freq && i < n_blocks) {
+  size_t num_freq;
+  while ((aux_Blocks || aux_Blocks_C) && aux_Freq && i < n_blocks) {
     if (compression_type == 'N')
       block_size = aux_Blocks->block_size;
     else
@@ -329,13 +327,13 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
-    int count = uint_range - 1;
+    size_t count = uint_range - 1;
     /* Simbolo 0 ate ao 254 */
     while (j < (count)) {
       num_freq = aux_Freq->freq[j];
       /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
       if (last != num_freq) {
-        fprintf(fp, "%d;", num_freq);
+        fprintf(fp, "%ld;", num_freq);
         last = num_freq;
       } else
         fprintf(fp, ";");
@@ -345,7 +343,7 @@ int writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     num_freq = aux_Freq->freq[j];
     /* Verificar se o valor da frequência é igual ao do símbolo anterior. */
     if (last != num_freq)
-      fprintf(fp, "%d", num_freq);
+      fprintf(fp, "%ld", num_freq);
     i = i + 1;
     aux_Freq = aux_Freq->prox;
     aux_Blocks = aux_Blocks->prox;
@@ -388,8 +386,8 @@ void print_module_f(const char *filename, BlockFiles const *self,
     fprintf(stdout, "\n\n");
 }
 
-int module_f(char const *filename, size_t const the_block_size,
-             int FORCE_FLAG) {
+size_t module_f(char const *filename, size_t const the_block_size,
+                size_t const FORCE_FLAG) {
 
   clock_t Ticks[2];
   /* Start time */
@@ -417,7 +415,7 @@ int module_f(char const *filename, size_t const the_block_size,
   if (fp1)
     fclose(fp1);
   /* Lemos o file por blocos, colocando-o na nossa estrutura de dados */
-  int error =
+  size_t error =
       building_blocks(rfile, self, n_blocks, size_last_block, the_block_size);
   /* Verificar se não houve ocorrência de erros na função executada
    * anteriormente. */
@@ -518,7 +516,7 @@ size_t convert_block_size(char letter) {
   return block_size;
 }
 
-void verificar_erro(int error) {
+void verificar_erro(size_t error) {
   switch (error) {
   case (-1):
     printf("Verifique se o ficheiro dado encontra-se correto\n");
@@ -535,10 +533,8 @@ void verificar_erro(int error) {
   }
 }
 
-int call_module_f(char *filename, char *options[]) {
-  int result = 0;
-  size_t block_size = k;
-  int FORCE_FLAG = 0;
+size_t call_module_f(char *filename, char *options[]) {
+  size_t result = 0, block_size = k, FORCE_FLAG = 0;
 
   if (options && options[0][1] && options[1]) {
     switch (options[0][1]) {
@@ -573,7 +569,7 @@ int call_module_f(char *filename, char *options[]) {
     }
   }
   /* block_size = 655360; */
-  block_size = 2048;
+  /* block_size = 2048; */
   /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
   verificar_erro(result);
