@@ -28,7 +28,7 @@ void char_vec_push(CharVec *self, char c) {
   self->used++;
 }
 
-void char_vec_del(Charvec *self) {
+void char_vec_del(CharVec *self) {
   free(self->vec);
 
 }

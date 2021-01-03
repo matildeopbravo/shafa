@@ -83,7 +83,7 @@ void char_vec_push(CharVec *self, char c);
 /**
  \brief Liberte o espaço alocado.
  */
-void char_vec_del(Charvec *self);
+void char_vec_del(CharVec *self);
 
 /**
  \brief Inicializa uma array de elementos dinámico.
