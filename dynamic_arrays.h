@@ -14,39 +14,39 @@
 #include <stdlib.h>
 
 /**
- \brief Símbolos relativos ao bloco sem compressão.
+   \brief Símbolos relativos ao bloco sem compressão.
 */
 typedef struct ByteVec {
-  uint8_t *vec; /**< Array dos símbolos. */
-  size_t used;  /**< Número de elementos usados no array. */
-  size_t size;  /**< Tamanho total do array. */
+	uint8_t *vec; /**< Array dos símbolos. */
+  	size_t used;  /**< Número de elementos usados no array. */
+  	size_t size;  /**< Tamanho total do array. */
 } ByteVec;
 
 /**
- \brief Array de caracteres dinámico.
+   \brief Array de caracteres dinámico.
  */
 typedef struct CharVec {
-  char *vec;   /**< Array dos caracteres. */
-  size_t used; /**< Número de elementos usados no array. */
-  size_t size; /**< Tamanho total do array. */
+  	char *vec;   /**< Array dos caracteres. */
+  	size_t used; /**< Número de elementos usados no array. */
+  	size_t size; /**< Tamanho total do array. */
 } CharVec;
 
 /**
  \brief Compressão de um símbolo.
  */
 typedef struct ByteTupple {
-  uint8_t byte;  /**< Símbolo. */
-  uint8_t count; /**< Número de ocorrências. */
+  	uint8_t byte;  /**< Símbolo. */
+  	uint8_t count; /**< Número de ocorrências. */
 } ByteTupple;
 
 /**
  \brief Símbolos relativos ao bloco com compressão.
 */
 typedef struct TuppleVec {
-  ByteTupple *vec; /**< Array dos símbolos. */
-  size_t used;     /**< Número de elementos usados no array. */
-  size_t n_used;   /**< Tamanho do array sem compressão. */
-  size_t size;     /**< Tamanho total do array. */
+  	ByteTupple *vec; /**< Array dos símbolos. */
+  	size_t used;     /**< Número de elementos usados no array. */
+  	size_t n_used;   /**< Tamanho do array sem compressão. */
+  	size_t size;     /**< Tamanho total do array. */
 } TuppleVec;
 
 /**
@@ -79,6 +79,11 @@ CharVec char_vec_new();
  \brief Função que adiciona uma caracter ao array dinámico.
  */
 void char_vec_push(CharVec *self, char c);
+
+/**
+ \brief Liberte o espaço alocado.
+ */
+void char_vec_del(Charvec *self);
 
 /**
  \brief Inicializa uma array de elementos dinámico.

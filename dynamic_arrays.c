@@ -27,6 +27,12 @@ void char_vec_push(CharVec *self, char c) {
   self->vec[self->used] = c;
   self->used++;
 }
+
+void char_vec_del(Charvec *self) {
+  free(self->vec);
+
+}
+
 ByteVec *byte_vec_new() {
   ByteVec *vec = (ByteVec *)calloc(1, sizeof(ByteVec));
   return vec;
