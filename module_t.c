@@ -1,3 +1,11 @@
+/**
+ * @file module_t.c
+ * @author Alexandre Flores e Rita Lino
+ * @date 03 Janeiro 2021
+ * @brief Responsavel pela compressao para Shannon Fano a partir do ficheiro
+ * de frequências.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
