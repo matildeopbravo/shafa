@@ -13,15 +13,16 @@
 
 #define BUFFER_SIZE 1024
 #define uint_range 256
-#define k 65536
-#define K 655360
-#define m 8388608
 
-#define M 67108864
+/* Tamanho dos blocos */
+#define k 65536   /**<  */
+#define K 655360  /**<  */
+#define m 8388608 /**<  */
+
+#define M 67108864 /**<  */
 enum compression { NOT_COMPRESSED, COMPRESSED };
 
 /* FILE */
-
 /**
 \brief Struct for Blocks NOT_COMPRESSED
 */
@@ -65,7 +66,7 @@ ByteVec *loadArray(FILE *file, size_t block_size);
 
 /**
 \brief Função que recebe um array e inicializa a estrutura das Frequências.
-\param array Array de interios
+\param array Array de inteiros
 \return FreqBlock.
 */
 FreqBlock *initializeFreq(size_t array[uint_range]);
@@ -77,7 +78,6 @@ void free_Freq(FreqBlock *e);
 
 /**
 \brief Função que alloca a memória necessária do Blocks.
-????
 */
 Blocks *initializeBlocks();
 
@@ -88,7 +88,6 @@ void free_Blocks(Blocks *e);
 
 /**
 \brief Função que alloca a memória necessária do Blocks_C.
-????
 */
 Blocks_C *initializeBlocks_C();
 
@@ -99,7 +98,6 @@ void free_Blocks_C(Blocks_C *e);
 
 /**
 \brief Função que alloca a memória necessária do BlockFiles.
-????
 */
 BlockFiles *initializeBlockFiles();
 
@@ -124,17 +122,20 @@ void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self);
 void arrayToFreqBlock(size_t array[uint_range], FreqBlock *e);
 
 /**
-\brief Funcção que imprime um FreqBlock.
+\brief Função que imprime um FreqBlock.
 */
 void print_freq(FreqBlock *freq);
 
 /**
-\brief Funcção que imprime um ByteVec.
+\brief Função que imprime um ByteVec.
 */
 void printByteVec(ByteVec const *self);
 
 void printEqual(TuppleVec const *vec);
 
+/**
+\brief Função que returna o tamanho do ultimo bloco.
+*/
 size_t size_last_block_C_rle(Blocks_C *self);
 
 #endif /* DATA_H */

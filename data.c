@@ -105,7 +105,6 @@ void free_Blocks_file(BlockFiles *e) {
   free(e);
 }
 
-/* Adiciona um bloco (Blocks) no nosso BlockFiles */
 void addedBlockTOBloc_file(BlockFiles *e, Blocks *block) {
   Blocks *aux = e->blocks;
   if (aux) {

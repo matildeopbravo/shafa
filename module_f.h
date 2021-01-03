@@ -48,7 +48,7 @@ long double calcCompress(TuppleVec const *self);
 TuppleVec *compress(ByteVec const *self);
 
 /**
- \brief Escreve a compressâo RLE de um BlockFile num determinado file.
+ \brief Escreve a compressâo RLE de um BlockFile num determinado ficheiro.
  */
 size_t write_compressed(FILE *file, BlockFiles const *self);
 
@@ -107,7 +107,7 @@ size_t TuppleVec_freq(TuppleVec *vec, size_t *block_size_,
 FreqBlock *calFreq_RLE(BlockFiles *file);
 
 /**
- \brief Escreve as frequências dos blocos num determinado file dado.
+ \brief Escreve as frequências dos blocos num determinado ficheiro dado.
  \return 1 em caso de sucesso.
  */
 size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
@@ -131,7 +131,7 @@ size_t module_f(char const *filename, size_t const the_block_size,
                 size_t const FORCE_FLAG);
 
 /**
- \brief Avisa que argumentos dados não são válidos.
+ \brief Avisa que os argumentos dados não são válidos.
  */
 void argumentos_invalidos();
 
@@ -139,6 +139,17 @@ void argumentos_invalidos();
  \brief Função que converte o char recebido para o tamanho correto do bloco.
  */
 size_t convert_block_size(char letter);
+
+/**
+ \brief Verifica qual é o erro obtido na execução do módulo_f.
+*/
+void verificar_erro(size_t error);
+
+/**
+ \brief Função que recebe os argumentos fornecidos pela main e chama o nosso
+ Módulo.
+*/
+size_t call_module_f(char *filename, char *options[]);
 
 /**
   \brief Função que analisa os argumentos dados e chama o módule f.
