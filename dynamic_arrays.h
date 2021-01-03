@@ -3,7 +3,7 @@
  * @author Alexandre Flores, Guilherme Fernandes, Maria Rita, Mariana Rodrigues,
   Matilde Bravo e Miguel Gomes.
  * @date 03 Janeiro 2021
- * @brief Estruturas de arrays dinámicos.
+ * @brief Estruturas de arrays dinâmicos.
  */
 #ifndef DYNAMIC_ARRAYS_H
 #define DYNAMIC_ARRAYS_H
@@ -23,7 +23,7 @@ typedef struct ByteVec {
 } ByteVec;
 
 /**
-   \brief Array de caracteres dinámico.
+   \brief Array de caracteres dinâmico.
  */
 typedef struct CharVec {
   char *vec;   /**< Array dos caracteres. */
@@ -50,12 +50,12 @@ typedef struct TuppleVec {
 } TuppleVec;
 
 /**
- \brief Função que devolve o tamanho do array dinámico.
+ \brief Função que devolve o tamanho do array dinâmico.
  */
 size_t byte_vec_size(ByteVec const *);
 
 /**
- \brief Função que devolve o número de elementos do array dinámico.
+ \brief Função que devolve o número de elementos do array dinâmico.
  */
 size_t byte_vec_used(ByteVec const *);
 
@@ -71,12 +71,12 @@ uint8_t byte_vec_index(ByteVec const *, size_t);
 uint8_t byte_vec_pop(ByteVec *);
 
 /**
- \brief Inicializa uma array de caracteres dinámico.
+ \brief Inicializa uma array de caracteres dinâmico.
  */
 CharVec char_vec_new();
 
 /**
- \brief Função que adiciona uma caracter ao array dinámico.
+ \brief Função que adiciona uma caracter ao array dinâmico.
  */
 void char_vec_push(CharVec *self, char c);
 
@@ -86,12 +86,12 @@ void char_vec_push(CharVec *self, char c);
 void char_vec_del(CharVec *self);
 
 /**
- \brief Inicializa uma array de elementos dinámico.
+ \brief Inicializa uma array de elementos dinâmico.
  */
 ByteVec *byte_vec_new();
 
 /**
- \brief Função que adiciona o elemento dado ao array dinámico.
+ \brief Função que adiciona o elemento dado ao array dinâmico.
  */
 void byte_vec_push(ByteVec *, uint8_t);
 
@@ -101,12 +101,12 @@ void byte_vec_push(ByteVec *, uint8_t);
 void byte_vec_del(ByteVec *);
 
 /**
- \brief Função que devolve o tamanho do array dinámico.
+ \brief Função que devolve o tamanho do array dinâmico.
  */
 size_t tupple_vec_size(TuppleVec const *);
 
 /**
- \brief Função que devolve o número de elementos do array dinámico.
+ \brief Função que devolve o número de elementos do array dinâmico.
  */
 size_t tupple_vec_used(TuppleVec const *);
 
@@ -122,12 +122,12 @@ ByteTupple tupple_vec_index(TuppleVec const *, size_t);
 ByteTupple tupple_vec_pop(TuppleVec *);
 
 /**
- \brief Inicializa uma array de elementos dinámico.
+ \brief Inicializa uma array de elementos dinâmico.
  */
 TuppleVec *tupple_vec_new();
 
 /**
- \brief Função que adiciona o elemento dado ao array dinámico.
+ \brief Função que adiciona o elemento dado ao array dinâmico.
  */
 void tupple_vec_push(TuppleVec *, uint8_t, uint8_t);
 

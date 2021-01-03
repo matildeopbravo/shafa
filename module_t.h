@@ -1,5 +1,5 @@
 /**
- * @file module_t.c
+ * @file module_t.h
  * @author Alexandre Flores e Rita Lino
  * @date 03 Janeiro 2021
  * @brief Responsavel pela compressao para Shannon Fano a partir do ficheiro
@@ -8,9 +8,11 @@
 
 #ifndef MODULET_H
 #define MODULET_H
-#include "stdio.h"
+#include <stdio.h>
 
-/* Struct for symbol data */
+/**
+\brief Struct for symbol data
+**/
 typedef struct symbol {
   int symbolID;
   int freq;
@@ -111,12 +113,12 @@ int freq_split (Symbol *symbol_table, int start, int end);
 
 /**
  \brief Appends a '0' to all symbol codes from start to p, not including p,
- and a '1' to all symbol codes from p to end, not including end. 
+ and a '1' to all symbol codes from p to end, not including end.
  \param *Symbol Table containing all symbols in the block being coded that
  will be written on.
  \param int Index of first element of second subgroup, in which we append '1'.
  \param int Index of first element of first subgroup, in which we append '0'.
- \param int Index of first garbage element, not to be written on. 
+ \param int Index of first garbage element, not to be written on.
  */
 void append_bits (Symbol *symbol_table, int p, int start, int end);
 

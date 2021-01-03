@@ -1,7 +1,8 @@
 /**
-@file module_c.h
-Definições das structs e enums utilizados no módulo C.
-
+ * @file module_c.h
+ * @author Matilde Oliveira Pizarro Bravo
+ * @date 3 Janeiro 2021
+ * @brief Definições das structs e enums utilizados no módulo C.
 */
 #include <stdint.h>
 #include <stdio.h>
@@ -42,7 +43,8 @@ typedef struct {
     Piece * matrix; /**Matriz bidimensional que contem as peças para cada um dos 8 offsets */
     SFTuple symbol_dictionary[DICT_SIZE]; /** Dicionário de símbolos indexado pelo valor que o simbolo tem. Se um dado simbolo não estiver presente neste ficheiro, na posição igual ao valor desse simbolo tera um sf_code nulo.  */
 } Block;
-/** Estrutura de dados que contém toda a informação retirada do ficheiro .cod e informação sobre cada um dos blocos.
+/**
+ \brief Estrutura de dados que contém toda a informação retirada do ficheiro .cod e informação sobre cada um dos blocos.
 */
 typedef struct sequence {
     size_t number_blocks; /**Número de blocos do ficheiro inicial */

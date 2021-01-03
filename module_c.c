@@ -1,10 +1,8 @@
 /**
  * @file module_c.c
  * @author Matilde Oliveira Pizarro Bravo
- * @date 5 Janeiro 2021
- * Responsible for generating fully compressed file (shaf), provided the text file and the file with Shannon-Fano codes.
+ * @date 3 Janeiro 2021
  * @brief Responsável por gerar um ficheiro comprimido (shaf), dado um ficheiro de texto e um ficheiro com os códigos Shannon-Fano.
- \brief Responsável por gerar um ficheiro comprimido (shaf), dado um ficheiro de texto e um ficheiro com os códigos Shannon-Fano.
  */
 
 #include "module_c.h"
