@@ -84,7 +84,7 @@ size_t write_compressed(FILE *file, BlockFiles const *self) {
 
 size_t checkSum(ByteVec *self) {
   long double i = 0;
-  TuppleVec *vec = tupple_vec_new();
+  TuppleVec *vec;
   vec = compress(self);
   i = calcCompress(vec);
   tupple_vec_del(vec);
@@ -402,7 +402,7 @@ size_t module_f(char const *filename, size_t const the_block_size,
   FILE *fp1 = fopen(filename, "rb");
 
   /* Aqui usamos  a função do professor Rui Dias com pequenas alterações. */
-  n_blocks = fsize(fp1, filename, &block_size, &size_last_block);
+  n_blocks = fsize(fp1, NULL, &block_size, &size_last_block);
   if (fp1)
     fclose(fp1);
 
