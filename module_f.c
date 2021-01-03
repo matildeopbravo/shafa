@@ -13,12 +13,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 
 long double calcCompress(TuppleVec const *self) {
-  size_t i = 0, r = 0, x = self->n_used, used = tupple_vec_used(self);
+  int64_t r = 0,
+	  x = self->n_used;
+  size_t used = tupple_vec_used(self);
   long double b = 0;
   ByteTupple a;
-  for (; i < used; i++) {
+  for(size_t i = 0; i < used; i++) {
     a = tupple_vec_index(self, i);
     if (a.count > 3 || a.byte == 0) {
       r = r + 3;
@@ -36,10 +39,9 @@ TuppleVec *compress(ByteVec const *self) {
   TuppleVec *t = tupple_vec_new();
   size_t i = 1, count = 1, used = self->used;
   uint8_t last = byte_vec_index(self, 0);
-  while (i < used && count < uint_range) {
-    /* if (last == self->vec[i]) { */
-    if (last == byte_vec_index(self, i)) {
-      count++;
+  while (i < used) {
+    if (last == byte_vec_index(self, i) && count < UCHAR_MAX) {
+	    count++;
     } else {
       tupple_vec_push(t, last, count);
       last = byte_vec_index(self, i);
@@ -357,7 +359,7 @@ void print_module_f(const char *filename, BlockFiles const *self,
   enum compression compression_type = self->compression_type;
 
   fprintf(stdout, "\n");
-  fprintf(stdout, "Mariana Rodrigues, a93329 && Mike, a \n");
+  fprintf(stdout, "Mariana Rodrigues, a93329 && Miguel Gomes, a93294 \n");
   fprintf(stdout, "MIEI/CD 03-Janeiro-2021 \n");
   fprintf(stdout, "Módulo: f (Cálculo das frequências dos símbolos) \n");
   fprintf(stdout, "Número de blocos: %ld\n", n_blocks);
@@ -572,15 +574,7 @@ size_t call_module_f(char *filename, char *options[]) {
       break;
     }
   }
-  /* block_size = 655360; */
-  /* block_size = 2048; */
-  /* block_size = 8388608; */
   result = module_f(filename, block_size, FORCE_FLAG);
   verificar_erro(result);
   return result;
 }
-
-/* Apagar no final */
-/*   /\* int ola = module_f("oaaa.txt", 2048, 0); *\/ */
-/*   int adeus = module_f("obbb.zip", 8388608, 0); */
-/*   /\* int ate_logo = module_f("occc.txt", 655360, 0); *\/ */
