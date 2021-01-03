@@ -135,4 +135,6 @@ void printByteVec(ByteVec const *self);
 
 void printEqual(TuppleVec const *vec);
 
+size_t size_last_block_C_rle(Blocks_C *self);
+
 #endif /* DATA_H */

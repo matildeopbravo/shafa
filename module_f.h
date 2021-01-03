@@ -118,8 +118,9 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
  \brief Imprime os resultados obtidos do MODULE_F.
  */
 void print_module_f(const char *filename, BlockFiles const *self,
-                    long double percentage_compression, double const time);
-
+                    long double percentage_compression, double const time,
+                    size_t block_size, size_t size_last, size_t block_size_rle,
+                    size_t size_last_rle);
 /**
  \brief Função que executa todo o MODULE_F.
  \param *filename Ficheiro a ser analisado.

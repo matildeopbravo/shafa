@@ -22,13 +22,15 @@ long double calcCompress(TuppleVec const *self) {
   ByteTupple a;
   for (; i < used; i++) {
     a = tupple_vec_index(self, i);
-    if (a.count > 3) {
+    if (a.count > 3 || a.byte == 0) {
       r = r + 3;
     } else
       r += a.count;
   }
   b = (x - r);
   b = (b / x) * 100;
+  if (b < 0)
+    b = 0;
   return b;
 }
 
@@ -241,7 +243,7 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     size_t block_size = 0;
     size_t array[uint_range];
 
-    if (sucess != TuppleVec_freq(vec, &block_size, &*array))
+    if (sucess != TuppleVec_freq(vec, &block_size, array))
       return NULL;
     /* Corrige o tamanho do nosso bloco analisado. */
     blocks->block_size = block_size;
@@ -254,7 +256,7 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     while (num <= num_blocks && blocks) {
       block_size = 0;
       vec = blocks->tBList;
-      if (sucess != TuppleVec_freq(vec, &block_size, &*array))
+      if (sucess != TuppleVec_freq(vec, &block_size, array))
         return NULL;
 
       /* Adiciona o array das frequencias obtido na estrutura de dados. */
@@ -269,7 +271,7 @@ FreqBlock *calFreq_RLE(BlockFiles *file) {
     return NULL;
 }
 
-size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
+size_t writeFreq(FILE *fp, const char *filename, BlockFiles *BlockFile,
                  FreqBlock *freq) {
   size_t n_blocks;
 
@@ -301,10 +303,7 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   size_t block_size;
 
   /* Abrir o ficheiro recebido para leitura. */
-  FILE *fp;
-  if (fp_in != NULL)
-    fp = fp_in;
-  else {
+  if (fp == NULL) {
     fp = fopen(filename, "r");
     if (fp == NULL)
       return WriteFreq_ERROR_IN_FILE;
@@ -313,8 +312,7 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
   /* ESCREVER:  */
   /* dados inicias */
   /* @<R|N>@NumerodeBlocos */
-  fprintf(fp, "%c%c%c%ld", uint_Arroba, compression_type, uint_Arroba,
-          n_blocks);
+  fprintf(fp, "@%c@%ld", compression_type, n_blocks);
   /* write the frequency of a block */
   i = 0;
   size_t num_freq;
@@ -324,7 +322,7 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     else
       block_size = aux_Blocks_C->block_size;
     /* @[tamanho_do_bloco]@ */
-    fprintf(fp, "%c%ld%c", uint_Arroba, block_size, uint_Arroba);
+    fprintf(fp, "@%ld@", block_size);
     j = 0;
     /* Write the frequencies up to the symbol 255 */
     size_t count = uint_range - 1;
@@ -352,7 +350,7 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
     last = -1;
   }
   /* @0 */
-  fprintf(fp, "%c0", uint_Arroba);
+  fprintf(fp, "@0");
   if (aux_Freq == NULL && i != n_blocks)
     return WriteFreq_ERROR_IN_FREQ;
   fclose(fp);
@@ -360,7 +358,9 @@ size_t writeFreq(FILE *fp_in, const char *filename, BlockFiles *BlockFile,
 }
 
 void print_module_f(const char *filename, BlockFiles const *self,
-                    long double percentage_compression, double const time) {
+                    long double percentage_compression, double const time,
+                    size_t block_size, size_t size_last, size_t block_size_rle,
+                    size_t size_last_rle) {
   size_t n_blocks = self->num_blocks;
   enum compression compression_type = self->compression_type;
 
@@ -371,12 +371,13 @@ void print_module_f(const char *filename, BlockFiles const *self,
   fprintf(stdout, "MIEI/CD 26-Dezembro-2020 \n");
   fprintf(stdout, "Módulo: f (Cálculo das frequências dos símbolos) \n");
   fprintf(stdout, "Número de blocos: %ld\n", n_blocks);
-  fprintf(stdout, "Tamanho dos blocos analisados: \n"); /* ?!!? */
+  fprintf(stdout, "Tamanho dos blocos analisados: %ld/%ld\n", size_last,
+          block_size);
   if (compression_type == COMPRESSED) {
     fprintf(stdout, "Compressao RLE: %s.rle (%Lg %c compressão)\n", filename,
             percentage_compression, uint_percentagem);
-    fprintf(stdout,
-            "Tamanho dos blocos analisados no ficheiro RLE: \n"); /* ?!!? */
+    fprintf(stdout, "Tamanho dos blocos analisados no ficheiro RLE: %ld/%ld\n",
+            size_last_rle, block_size_rle);
   }
   fprintf(stdout, "Tempo de execução do módulo (milissegundos): %f\n", time);
   fprintf(stdout, "Ficheiros gerados: %s.freq", filename);
@@ -397,7 +398,7 @@ size_t module_f(char const *filename, size_t const the_block_size,
   strcpy(filename_, filename);
 
   size_t x1 = 0;
-  FILE *rfile, *wfile, *wfile_rle;
+  FILE *rfile, *wfile, *wfile_rle, *wfile_rle_freq;
 
   /* Vamos abrir um file em modo binário com o char* recebido  */
   rfile = fopen(filename, "rb");
@@ -414,6 +415,7 @@ size_t module_f(char const *filename, size_t const the_block_size,
   n_blocks = fsize(fp1, filename, &block_size, &size_last_block);
   if (fp1)
     fclose(fp1);
+
   /* Lemos o file por blocos, colocando-o na nossa estrutura de dados */
   size_t error =
       building_blocks(rfile, self, n_blocks, size_last_block, the_block_size);
@@ -447,11 +449,15 @@ size_t module_f(char const *filename, size_t const the_block_size,
     Ticks[1] = clock();
     /* Calcular o tempo de execução do MODULE_F. */
     double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
-    print_module_f(filename, self, 0, time);
+    print_module_f(filename, self, 0, time, block_size, size_last_block, 0, 0);
+    free_Freq(freq_file);
+    free_Blocks_file(self);
     return Module_f_ERROR_IN_COMPRESSION;
   }
 
-  char *filename_rle = filename_;
+  /* char *filename_rle = filename_; */
+  char filename_rle[3000];
+  strcpy(filename_rle, filename_);
   strcat(filename_rle, ".rle");
 
   if (FORCE_FLAG || x1) {
@@ -463,14 +469,13 @@ size_t module_f(char const *filename, size_t const the_block_size,
 
     /* char *filename_rle_freq = filename_rle; */
     strcat(filename_rle, ".freq");
-    wfile_rle = fopen(filename_rle, "w");
+    wfile_rle_freq = fopen(filename_rle, "w");
     /* Imprimir as frequências obtidas dos blocos. */
     /* error = writeFreq(wfile, filename_rle, self, freq_file_rle); */
-    error = writeFreq(wfile, filename_rle, self, freq_file_rle);
+    error = writeFreq(wfile_rle_freq, filename_rle, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
-    else
-      free_Freq(freq_file_rle);
+    free_Freq(freq_file_rle);
   }
 
   long double blocks = calcCompress_blocks(self);
@@ -481,7 +486,11 @@ size_t module_f(char const *filename, size_t const the_block_size,
   double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
 
   /* Apresentar menu final relativo ao módulo. */
-  print_module_f(filename, self, blocks, time);
+  size_t size_block_rle = self->blocks_c->block_size,
+         size_last_rle = size_last_block_C_rle(self->blocks_c);
+
+  print_module_f(filename, self, blocks, time, block_size, size_last_block,
+                 size_block_rle, size_last_rle);
   /* Libertar o espaço alocado. */
   free_Freq(freq_file);
   free_Blocks_file(self);

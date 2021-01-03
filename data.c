@@ -174,3 +174,10 @@ void printEqual(TuppleVec const *vec) {
   }
   printf("\n %ld \n", counter);
 }
+
+size_t size_last_block_C_rle(Blocks_C *self) {
+  Blocks_C *aux = self;
+  while (aux->prox)
+    aux = aux->prox;
+  return aux->block_size;
+}
