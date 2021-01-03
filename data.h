@@ -145,6 +145,9 @@ void print_freq(FreqBlock *freq);
 */
 void printByteVec(ByteVec const *self);
 
+/**
+\brief Função que imprime um TuppleVec.
+*/
 void printEqual(TuppleVec const *vec);
 
 /**

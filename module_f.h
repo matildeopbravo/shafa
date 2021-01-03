@@ -1,10 +1,8 @@
 /**
  * @file module_f.h
- * @author Mariana Dinis Rodrigues e Mike
- * @date 28 Dezembro 2020
- * Responsible for compressing RLE and calculating frequencies.
+ * @author Mariana Dinis Rodrigues e Pedro Miguel Gomes
+ * @date 3 Janeiro 2021
  * @brief Responsavel pela compressao RLE e pelo calculo das frequencias.
- \brief Responsavel pela compressao RLE e pelo calculo das frequencias.
  */
 #ifndef __MODULE_F_H_
 #define __MODULE_F_H_

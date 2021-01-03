@@ -8,20 +8,19 @@
 #include "module_f.h"
 #include "dynamic_arrays.h"
 #include "fsize_.h"
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <limits.h>
 
 long double calcCompress(TuppleVec const *self) {
-  int64_t r = 0,
-	  x = self->n_used;
+  int64_t r = 0, x = self->n_used;
   size_t used = tupple_vec_used(self);
   long double b = 0;
   ByteTupple a;
-  for(size_t i = 0; i < used; i++) {
+  for (size_t i = 0; i < used; i++) {
     a = tupple_vec_index(self, i);
     if (a.count > 3 || a.byte == 0) {
       r = r + 3;
@@ -41,7 +40,7 @@ TuppleVec *compress(ByteVec const *self) {
   uint8_t last = byte_vec_index(self, 0);
   while (i < used) {
     if (last == byte_vec_index(self, i) && count < UCHAR_MAX) {
-	    count++;
+      count++;
     } else {
       tupple_vec_push(t, last, count);
       last = byte_vec_index(self, i);
@@ -465,7 +464,6 @@ size_t module_f(char const *filename, size_t const the_block_size,
     strcat(filename_rle, ".freq");
     wfile_rle_freq = fopen(filename_rle, "w");
     /* Imprimir as frequências obtidas dos blocos. */
-    /* error = writeFreq(wfile, filename_rle, self, freq_file_rle); */
     error = writeFreq(wfile_rle_freq, filename_rle, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;

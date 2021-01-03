@@ -1,3 +1,10 @@
+/**
+ * @file data.c
+ * @author Alexandre Flores, Guilherme Fernandes, Maria Rita, Mariana Rodrigues,
+  Matilde Bravo e Miguel Gomes.
+ * @date 03 Janeiro 2021
+ * @brief Estruturas de dados auxiliares.
+ */
 #include "data.h"
 #include "dynamic_arrays.h"
 #include <stdio.h>

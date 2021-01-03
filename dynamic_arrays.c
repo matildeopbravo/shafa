@@ -1,3 +1,10 @@
+/**
+ * @file dynamic_arrays.c
+ * @author Alexandre Flores, Guilherme Fernandes, Maria Rita, Mariana Rodrigues,
+  Matilde Bravo e Miguel Gomes.
+ * @date 03 Janeiro 2021
+ * @brief Estruturas de dados auxiliares.
+ */
 #include "dynamic_arrays.h"
 #include <assert.h>
 #include <stddef.h>
@@ -28,10 +35,7 @@ void char_vec_push(CharVec *self, char c) {
   self->used++;
 }
 
-void char_vec_del(Charvec *self) {
-  free(self->vec);
-
-}
+void char_vec_del(CharVec *self) { free(self->vec); }
 
 ByteVec *byte_vec_new() {
   ByteVec *vec = (ByteVec *)calloc(1, sizeof(ByteVec));
