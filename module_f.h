@@ -55,7 +55,6 @@ size_t write_compressed(FILE *file, BlockFiles const *self);
 /**
  \brief Verifica se a compressão de um determinado bloco é superior ou igual
  a 5.
-
  \return 1 se a compressão obtida for superior ou igual 5, 0 caso contrário.
  */
 size_t checkSum(ByteVec *self);
@@ -63,7 +62,7 @@ size_t checkSum(ByteVec *self);
 /**
  \brief Esta função recebe um file e coloca-o por blocos na nossa estrutura de
  dados.
- \param FILE File para leitura.
+ \param FILE Ficheiro para leitura.
  \param *self Iremos guardar a nossa estrutura de dados aqui.
  \param size_last_block Tamanho do último bloco.
  \param block_size Tamanho dos restantes blocos.
@@ -81,7 +80,7 @@ size_t building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
 size_t compress_blocks(BlockFiles *self, size_t FORCE_FLAG);
 
 /**
- \brief Calcula a compressão média das compressao dos blocos.
+ \brief Calcula a compressão média das compressões dos blocos.
  */
 long double calcCompress_blocks(BlockFiles const *self);
 
@@ -93,8 +92,8 @@ long double calcCompress_blocks(BlockFiles const *self);
 FreqBlock *calFreq(BlockFiles const *file);
 
 /**
- \brief Recebe um TuppleVec e calcula a frequencias dos simbolos
- \param *block_size_ No final da função aoresenta o tamanho real do bloco.
+ \brief Recebe um TuppleVec e calcula a frequências dos simbolos
+ \param *block_size_ No final da função apresenta o tamanho real do bloco.
  \return 1 em caso de sucesso
  */
 size_t TuppleVec_freq(TuppleVec *vec, size_t *block_size_,

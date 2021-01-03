@@ -1,7 +1,7 @@
 /**
  * @file module_f.c
  * @author Mariana Dinis Rodrigues e Mike
- * @date 02 Janeiro 2021
+ * @date 03 Janeiro 2021
  * Responsible for compressing RLE and calculating frequencies.
  * @brief Responsavel pela compressao RLE e pelo calculo das frequencias.
  \brief Responsavel pela compressao RLE e pelo calculo das frequencias.
@@ -28,9 +28,9 @@ long double calcCompress(TuppleVec const *self) {
       r += a.count;
   }
   b = (x - r);
-  b = (b / x) * 100;
   if (b < 0)
     b = 0;
+  b = (b / x) * 100;
   return b;
 }
 
@@ -38,11 +38,10 @@ TuppleVec *compress(ByteVec const *self) {
   TuppleVec *t = tupple_vec_new();
   size_t i = 1, count = 1, used = self->used;
   uint8_t last = byte_vec_index(self, 0);
-  while (i < used && count < (uint_range - 1)) {
+  while (i < used && count < uint_range) {
     /* if (last == self->vec[i]) { */
     if (last == byte_vec_index(self, i)) {
       count++;
-      last = byte_vec_index(self, i);
     } else {
       tupple_vec_push(t, last, count);
       last = byte_vec_index(self, i);
@@ -119,9 +118,7 @@ size_t building_blocks(FILE *file, BlockFiles *self, size_t n_blocks,
 }
 
 size_t compress_blocks(BlockFiles *self, size_t FORCE_FLAG) {
-  /* Blocks *list = initializeBlocks(); */
   Blocks *list;
-  /* Blocks *list; */
   if (checkSum(self->blocks->blocklist) == 0 && !FORCE_FLAG) {
     return 0;
   }
@@ -210,7 +207,7 @@ size_t TuppleVec_freq(TuppleVec *vec, size_t *block_size_,
       if (byte == 0) {
         array[0]++;
         array[count]++;
-        block_size += 3;
+        block_size += 3; /* block_size +=2 */
       } else {
         /* Caso em que o nosso símbolo ocorre mais do que 3 vezes. */
         if (aux.count > 3) {
@@ -437,14 +434,15 @@ size_t module_f(char const *filename, size_t const the_block_size,
   strcat(filename_freq, ".freq");
 
   wfile = fopen(filename_freq, "w");
-  /* error = writeFreq(wfile, filename_freq, self, freq_file); */
   error = writeFreq(wfile, filename_freq, self, freq_file);
   if (error != 1)
     return Module_f_ERROR_IN_FILE;
 
   /* RLE */
   x1 = compress_blocks(self, FORCE_FLAG);
+  printf("ola\n");
   if (!x1 && FORCE_FLAG) {
+    printf("ola1\n");
     /* End time */
     Ticks[1] = clock();
     /* Calcular o tempo de execução do MODULE_F. */
@@ -455,12 +453,14 @@ size_t module_f(char const *filename, size_t const the_block_size,
     return Module_f_ERROR_IN_COMPRESSION;
   }
 
+  printf("ola2\n");
   /* char *filename_rle = filename_; */
   char filename_rle[3000];
   strcpy(filename_rle, filename_);
   strcat(filename_rle, ".rle");
 
   if (FORCE_FLAG || x1) {
+    printf("ola3\n");
     wfile_rle = fopen(filename_rle, "w");
     /* Escrever a compressão RLE num determinado ficheiro. */
     write_compressed(wfile_rle, self);
@@ -475,9 +475,11 @@ size_t module_f(char const *filename, size_t const the_block_size,
     error = writeFreq(wfile_rle_freq, filename_rle, self, freq_file_rle);
     if (error != 1)
       return Module_f_ERROR_IN_FILE;
+
     free_Freq(freq_file_rle);
   }
 
+  printf("ola2");
   long double blocks = calcCompress_blocks(self);
 
   /* End time */
@@ -485,9 +487,16 @@ size_t module_f(char const *filename, size_t const the_block_size,
   /* Calcular o tempo de execução do MODULE_F. */
   double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
 
-  /* Apresentar menu final relativo ao módulo. */
-  size_t size_block_rle = self->blocks_c->block_size,
-         size_last_rle = size_last_block_C_rle(self->blocks_c);
+  size_t size_block_rle, size_last_rle;
+
+  if (FORCE_FLAG || x1) {
+    /* Apresentar menu final relativo ao módulo. */
+    size_block_rle = self->blocks_c->block_size;
+    size_last_rle = size_last_block_C_rle(self->blocks_c);
+  } else {
+    size_block_rle = 0;
+    size_last_rle = 0;
+  }
 
   print_module_f(filename, self, blocks, time, block_size, size_last_block,
                  size_block_rle, size_last_rle);
