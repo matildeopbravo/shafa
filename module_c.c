@@ -60,8 +60,7 @@ static int write_block(Block* block, FILE* fp_shaf, FILE* fp_input) {
     for (size_t i = 0; i < byte_vec_used(vec); i++) {
         fputc(byte_vec_index(vec, i), fp_shaf);
     }
-    free(vec->vec);
-    free(vec);
+    byte_vec_del(vec);
     return error;
 }
 /**
@@ -99,7 +98,7 @@ static size_t count_numbers(char* c, FILE* fp_cod) {
     char_vec_push(&buffer, '\0');
     *c = tmp;
     int n = atoi(buffer.vec);
-    free(buffer.vec);
+    char_vec_del(&buffer);
     return n;
 }
 /**
@@ -169,7 +168,6 @@ static uint8_t* make_code(const char* str, size_t size, size_t CODE_MAX_SIZE) {
 static void start_matrix(Block* block, uint8_t* symbols) {
     Piece* matrix = calloc(sizeof(Piece), block->number_symbols * 8);
     block->matrix = matrix;
-    // ( ( x - 1 ) | ( m - 1 ) ) + 1 multiple above current
     size_t CODE_MAX_SIZE = (((block->biggest_code_size - 1) | 7) + 9) / 8;
 
     // creates offset 0
@@ -315,7 +313,7 @@ static void print_dictionary(FullSequence* full_seq) {
 */
 static void print_console(FullSequence* full_seq, double time, char* filename) {
     printf("Matilde Bravo, a93246, MIEI/CD, 1-jan-2021\n");
-    printf("Módulo: c (codificação de um ficheiro de símbolos\n");
+    printf("Módulo: c (codificação de um ficheiro de símbolos)\n");
     printf("Número de blocos: %zu\n", full_seq->number_blocks);
     printf("Tempo de execução do módulo (milissegundos): %f\n", time);
     size_t after_sum = 0;
