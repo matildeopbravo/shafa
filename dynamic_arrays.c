@@ -35,14 +35,10 @@ void char_vec_push(CharVec *self, char c) {
   self->used++;
 }
 
-<<<<<<< HEAD
-void char_vec_del(CharVec *self) { free(self->vec); }
-=======
 void char_vec_del(CharVec *self) {
   free(self->vec);
 
 }
->>>>>>> f5885ed48f0cb76d9edeb08c999957a7801042cf
 
 ByteVec *byte_vec_new() {
   ByteVec *vec = (ByteVec *)calloc(1, sizeof(ByteVec));

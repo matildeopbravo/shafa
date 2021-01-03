@@ -1,3 +1,12 @@
+### Trabalho realizado por:
+   - Alexandre Flores
+   - Guilherme Fernandes
+   - Rita Lino
+   - Mariana Rodrigues
+   - Matilde Bravo
+   - Miguel Gomes
+
+
 ## Parte A (Cálculo das freq dos símbolos e compressão RLE)
 
 - Módulo F

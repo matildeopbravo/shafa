@@ -16,7 +16,6 @@
 /**
 \brief Devolve uma peça(code+index+next) da matrz de bytes
 */
-
 static Piece* get_piece(
     Piece* matrix,
     uint8_t offset,
