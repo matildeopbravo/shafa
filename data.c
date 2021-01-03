@@ -53,9 +53,6 @@ void free_Freq(FreqBlock *e) {
 
 Blocks *initializeBlocks() {
   Blocks *e = (Blocks *)calloc(1, sizeof(Blocks));
-  e->prox = NULL;
-  e->block_size = 0;
-  e->blocklist = NULL;
   return e;
 }
 
@@ -72,9 +69,6 @@ void free_Blocks(Blocks *e) {
 
 Blocks_C *initializeBlocks_C() {
   Blocks_C *e = (Blocks_C *)calloc(1, sizeof(Blocks_C));
-  e->prox = NULL;
-  e->block_size = 0;
-  e->tBList = NULL;
   return e;
 }
 
@@ -90,10 +84,7 @@ void free_Blocks_C(Blocks_C *e) {
 
 BlockFiles *initializeBlockFiles() {
   BlockFiles *e = (BlockFiles *)calloc(1, sizeof(BlockFiles));
-  e->blocks = NULL;
-  e->blocks_c = NULL;
   e->compression_type = NOT_COMPRESSED;
-  e->num_blocks = 0;
   return e;
 }
 
@@ -117,7 +108,6 @@ void addedBlockTOBloc_file(BlockFiles *e, Blocks *block) {
   e->num_blocks = e->num_blocks + 1;
 }
 
-// Adiciona um bloco_c (Blocks_C) no nosso BlockFiles
 void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self) {
   Blocks_C *aux = e->blocks_c;
   if (aux) {
@@ -129,7 +119,6 @@ void addedBlock_CTOBloc_file(BlockFiles *e, Blocks_C *self) {
   }
 }
 
-/* Array of ints to a FreqBlock */
 void arrayToFreqBlock(size_t array[uint_range], FreqBlock *e) {
   FreqBlock *aux, *new;
   aux = e;

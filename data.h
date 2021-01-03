@@ -1,6 +1,9 @@
 /**
  * @file data.h
- * @date 28 Dezembro 2020
+ * @author Alexandre Flores, Guilherme Fernandes, Maria Rita, Mariana Rodrigues,
+  Matilde Bravo e Miguel Gomes.
+ * @date 03 Janeiro 2021
+ * @brief Estruturas de dados auxiliares.
  */
 #ifndef DATA_H
 #define DATA_H
@@ -15,53 +18,64 @@
 #define uint_range 256
 
 /* Tamanho dos blocos */
-#define k 65536   /**<  */
-#define K 655360  /**<  */
-#define m 8388608 /**<  */
+#define k 65536   /**< 64Kbytes */
+#define K 655360  /**< 640 Kbytes */
+#define m 8388608 /**< 8Mbytes */
 
-#define M 67108864 /**<  */
+#define M 67108864 /**< 64Kbytes */
+
+/**< Compressão */
 enum compression { NOT_COMPRESSED, COMPRESSED };
 
 /* FILE */
 /**
-\brief Struct for Blocks NOT_COMPRESSED
+\brief Estrutura para os blocos sem compressão.
 */
 typedef struct block {
-  ByteVec *blocklist;
+  ByteVec *blocklist;      /**< Array dinámico */
   unsigned int block_size; /**< Tamanho do bloco */
-  struct block *prox;
+  struct block *prox;      /**< Apontador para o próximo bloco */
 } Blocks;
 
 /**
-/brief Struct for blocks_compressed
+\brief Estrutura para os blocos com compressão.
 */
 typedef struct block_c {
-  TuppleVec *tBList;
+  TuppleVec *tBList;       /**< Array dinámico */
   unsigned int block_size; /**< Tamanho do bloco */
-  struct block_c *prox;
+  struct block_c *prox;    /**< Apontador para o próximo bloco */
 } Blocks_C;
 
 /**
-\brief Struct to put on file on blocks
+\brief Estrutura onde colocamos o nosso ficheiro em blocos.
 */
 typedef struct block_file {
   enum compression compression_type; /**< Compression_type */
   unsigned int num_blocks;           /**< Número de blocos. */
-  Blocks *blocks;     /**< If compression_type == NOT_COMPRESSED -> NULL */
-  Blocks_C *blocks_c; /**< If compression_type == COMPRESSED -> NULL */
+  Blocks *blocks;                    /**< Blocos não comprimidos */
+  Blocks_C *blocks_c;                /**< Blocos comprimidos */
+  /**< If compression_type == NOT_COMPRESSED -> NULL */
 } BlockFiles;
 
 /* FREQUENCY */
 /**
-\brief Struct for the blocks' frequency
+\brief Frequências para os blocos.
 */
 typedef struct freq_block {
   int freq[uint_range]; /**< Freqência relativa ao bloco */
-  struct freq_block *prox;
+  struct freq_block
+      *prox; /**< Apontador para as frequências do bloco seguinte */
 } FreqBlock;
 
+/**
+ \brief Função que pega numa dada string e remove-lhe a ocorrência da outra
+ string dada.
+*/
 char *replace_str(char *str, char *orig, char *rep);
 
+/**
+ \brief Função que recebe um ficheiro e guarda-o na memória.
+ */
 ByteVec *loadArray(FILE *file, size_t block_size);
 
 /**

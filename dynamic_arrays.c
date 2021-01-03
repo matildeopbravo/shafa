@@ -29,9 +29,6 @@ void char_vec_push(CharVec *self, char c) {
 }
 ByteVec *byte_vec_new() {
   ByteVec *vec = (ByteVec *)calloc(1, sizeof(ByteVec));
-  vec->size = 0;
-  vec->used = 0;
-  vec->vec = NULL;
   return vec;
 }
 
@@ -65,10 +62,6 @@ ByteTupple tupple_vec_pop(TuppleVec *self) {
 
 TuppleVec *tupple_vec_new() {
   TuppleVec *vec = (TuppleVec *)calloc(1, sizeof(TuppleVec));
-  /* TuppleVec *vec = malloc(sizeof(TuppleVec)); */
-  vec->size = 0;
-  vec->used = 0;
-  vec->vec = NULL;
   return vec;
 }
 
